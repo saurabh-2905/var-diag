@@ -35,6 +35,7 @@ class StateTransition:
         '''
         file_paths -> list: 
             complete path to the sample data files (.npy)
+            anomalies -> list: fromat: [[(var1, ts1), (var2, ts2), file_name], [], [], ...., []]
         '''
         if 'transitions.json' in os.listdir():
             with open('transitions.json', 'r') as f:
