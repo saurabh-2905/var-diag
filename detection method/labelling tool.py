@@ -1,3 +1,33 @@
+# This Python file uses the following encoding: utf-8
+# __author__ = "Saurabh Band"
+
+'''
+- This is a GUI tool for generating labels for event traces generated using VarLogger. 
+- This tools take the path to the trace file which is further used to map index to timestamps and also extract meta data for the trace
+- The user needs to input the index1, index2 and class for the trace and the tool will calculate the timestamps for the given indices.
+- The labels are stored in a dictionary with the key as the file name and the value as a list of labels for the trace.
+- The labels provide indices and respective timestamp where anomaly has occured in the trace. 
+- Even though we treat the anomalies as point anomalies, we mark a small window in the trace where the anomaly has occured using the indices.
+- The detection algorithms can predict either the indices or the timestamps where the anomaly has occured.
+The labels generated using the tools are tored in JSON format with the following structure:
+{
+    "metadata": {
+        "behaviour": "behaviour of the trace",
+        "version": "version of the trace",
+        "thread": "thread of the trace",
+        "code": "code of the trace",
+        "path": "path to the trace file"
+    },
+    "labels": {
+        "file_name": [
+            [index1, index2, timestamp1, timestamp2, class],
+            [index1, index2, timestamp1, timestamp2, class],
+            [index1, index2, timestamp1, timestamp2, class]
+        ]
+    }
+
+'''
+
 import json
 import tkinter as tk
 from tkinter import messagebox
@@ -137,8 +167,7 @@ def save_data():
         entry.delete(0, 'end')
 
     metadata = {}
-    labels = {}
-
+    labels.clear()
 # Create save button
 save_button = tk.Button(root, text='Save data', command=save_data)
 save_button.pack()
