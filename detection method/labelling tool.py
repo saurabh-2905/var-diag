@@ -25,6 +25,7 @@ The labels generated using the tools are tored in JSON format with the following
             [index1, index2, timestamp1, timestamp2, class]
         ]
     }
+class: 0 -> normal, 1 -> comm anomaly, 2 -> sensor anomaly, 3 -> bitflip anomaly
 
 '''
 
