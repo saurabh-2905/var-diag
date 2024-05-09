@@ -65,7 +65,10 @@ def get_paths(log_path: str):
     varlist files -> list;
     '''
     label_path = os.path.join(log_path, 'labels')
-    labels = os.listdir(label_path)
+    if os.path.exists(label_path):
+        labels = os.listdir(label_path)
+    else:
+        labels = []
     all_files = os.listdir(log_path)
     all_files.sort()
     logs = []
@@ -130,16 +133,19 @@ def is_consistent(varlist_paths: list):
     '''
     varlist = read_json(varlist_paths[0])
     # print(varlist)
-    for ind, varlist_p in enumerate(varlist_paths[1:]):
-        varlist_ = read_json(varlist_p)
-        if varlist != varlist_:
-            print(f'varlist {ind+1} is not consistent varlist 0')
-            return False
-        else:
-            print(f'varlist {ind+1} is consistent with varlist 0')
-            print(varlist, varlist_)
-            return varlist
-        
+    if len(varlist_paths) > 1:
+        for ind, varlist_p in enumerate(varlist_paths[1:]):
+            varlist_ = read_json(varlist_p)
+            if varlist != varlist_:
+                print(f'varlist {ind+1} is not consistent varlist 0')
+                return False
+            else:
+                print(f'varlist {ind+1} is consistent with varlist 0')
+                print(varlist, varlist_)
+                return varlist
+    else:
+        return varlist
+
 
 def mapint2var(vartoint):
         '''
