@@ -239,7 +239,15 @@ def plot_single_trace(df, var_list, with_time=False, anomalies=None, is_xticks=F
         anomalies_xticks = anomalies[1]
         anomalies_class = anomalies[2]
 
-        for (start, end), (start_ts, end_ts), cls in zip(anomalies_values, anomalies_xticks, anomalies_class):
+        for (start_ind, end_ind), (start_ts, end_ts), cls in zip(anomalies_values, anomalies_xticks, anomalies_class):
+            ### check if time on x-axis
+            if with_time:
+                start = start_ts
+                end = end_ts
+            else:
+                start = start_ind
+                end = end_ind
+
             #### select colour based on class
             fill_colour = colour_list[cls]
             fig.add_shape(type="rect", # specify the shape type "rect"
