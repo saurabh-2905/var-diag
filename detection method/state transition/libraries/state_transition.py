@@ -17,8 +17,12 @@ class StateTransition:
             complete path to the sample data files (.npy)
         '''
         for sample_path in file_paths:
-            sample_data = load_sample(sample_path)
-            print(sample_path)
+            if sample_path.find('.npy') != -1:
+                sample_data = load_sample(sample_path)
+                print(sample_path)
+            elif sample_path.find('.json') != -1:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
 
             for event1, event2 in zip(sample_data[0:-1], sample_data[1:]):
                 # print(event1,event2)
@@ -38,22 +42,37 @@ class StateTransition:
             anomalies -> list: fromat: [[(var1, ts1), (var2, ts2), file_name], [], [], ...., []]
         '''
         if 'transitions.json' in os.listdir():
-            with open('transitions.json', 'r') as f:
+            with open('transitions_st.json', 'r') as f:
                 transitions = json.load(f)
         else:
             raise(RuntimeError('Transition table missing'))
+        
+        ### convert the keys from string to int
+        trans_keys = list(transitions.keys())
+        transitions_new = {}
+        for key in trans_keys:
+            transitions_new[int(key)] = transitions[key]
+        transitions = transitions_new
+        print(transitions)
+
         anomalies = []
         for sample_path in file_paths:
-            sample_data = load_sample(sample_path)
+            if sample_path.find('.npy') != -1:
+                sample_data = load_sample(sample_path)
+                print(sample_path)
+            else:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
 
             for event1, event2 in zip(sample_data[0:-1], sample_data[1:]):
                 #print(event1,event2)
                 var1, var2 = event1[0], event2[0]
                 ts1, ts2 = event1[1], event2[1]
-
+                # print(event1, event2)
                 if var2 not in transitions[var1]:
-                    print('Anomaly Detected:', [(var1, ts1), (var2, ts2), os.path.basename(sample_path)])
-                    anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(sample_path)]]
+                    print('Anomaly Detected:', [(var1, var2), (ts1, ts2), os.path.basename(sample_path)])
+                    # anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(sample_path)]]
+                    anomalies += [[(var1, var2), (ts1, ts2), os.path.basename(sample_path)]]
         return anomalies
     
     def test_single(self, file_path):
@@ -63,13 +82,26 @@ class StateTransition:
         '''
 
         if 'transitions.json' in os.listdir():
-            with open('transitions.json', 'r') as f:
+            with open('transitions_st.json', 'r') as f:
                 transitions = json.load(f)
         else:
             raise(RuntimeError('Transition table missing'))
         
+        ### convert the keys from string to int
+        trans_keys = list(transitions.keys())
+        transitions_new = {}
+        for key in trans_keys:
+            transitions_new[int(key)] = transitions[key]
+        transitions = transitions_new
+        print(transitions)
+
         anomalies = []
-        sample_data = load_sample(file_path)
+        if file_path.find('.npy') != -1:
+            sample_data = load_sample(file_path)
+            print(file_path)
+        else:
+            sample_data = read_traces(file_path)
+            print(file_path)
 
         for event1, event2 in zip(sample_data[0:-1], sample_data[1:]):
             #print(event1,event2)
@@ -77,9 +109,68 @@ class StateTransition:
             ts1, ts2 = event1[1], event2[1]
 
             if var2 not in transitions[var1]:
-                print('Anomaly Detected:', [(var1, ts1), (var2, ts2), os.path.basename(file_path)])
-                anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(file_path)]]
+                print('Anomaly Detected:', [(var1, var2), (ts1, ts2), os.path.basename(file_path)])
+                # anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(file_path)]]
+                anomalies += [[(var1, var2), (ts1, ts2), os.path.basename(file_path)]]
         return anomalies
+    
+    def get_ypred_ytrue(detection, ground_truth):
+        '''
+        detection -> list: detections from the st model -> [[(var1, var2), (ts1, ts2), file_name], [], [], ...., []]
+        ground_truth -> list: ground truth labels -> [[(ind1, ind2), (ts1, ts2), class], [], [], ...., []]
+
+        return:
+        y_pred -> list: [1, 1, 0, 1, 0, 0, ...., 1]
+        y_true -> list: [1, 1, 1, 1, 0, 0, ...., 0]
+        '''
+        y_pred = []
+        y_true = []
+
+        # print(y_pred, y_true)
+        if len(detection) != 0:
+            detected_flag = False
+            for im, pred in enumerate(detection):
+                state1, state2 = pred[0]
+                pd_ts1, pd_ts2 = pred[1]
+                filename = pred[2]
+
+                if len(ground_truth) != 0:
+                    for gt in ground_truth:
+                        ind1 = gt[0]
+                        ind2 = gt[1]
+                        gt_ts1 = gt[2]
+                        gt_ts2 = gt[3]
+                        class_label = gt[4]
+
+                        cond_1 = pd_ts1 > gt_ts1 and pd_ts1 < gt_ts2  ### check if the detection timestamp is within the ground truth timestamp
+                        cond_2 = pd_ts2 > gt_ts1 and pd_ts2 < gt_ts2  ### check if the detection timestamp is within the ground truth timestamp
+
+                        if cond_1 or cond_2:
+                            detected_flag = True
+                            ### remove all the detected instances to check which instances not detected
+                            ground_truth.remove(gt)
+                            break ### not for testing, part of code
+
+                if detected_flag==True:
+                    ### TP
+                    print('TP:', detection)
+                    y_pred += [1]
+                    y_true += [1]
+                    detected_flag=False
+                else:
+                    ### FP
+                    print('FP:', detection)
+                    y_pred += [1]
+                    y_true += [0]
+
+        if len(ground_truth) != 0:
+            for gt in ground_truth:
+                ### FN
+                print('FN:', gt)
+                y_pred += [0]
+                y_true += [1]
+
+        return y_pred, y_true
     
 
 class StateTransitionProb:
