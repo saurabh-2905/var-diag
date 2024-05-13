@@ -161,7 +161,7 @@ def mapint2var(vartoint):
         return inttovar
 
 
-def preprocess_traces(var_list, paths_traces):
+def preprocess_traces(paths_traces, var_list=None):
     '''
     This function takes multiple trace paths as input and stores it in one place
     var_list: list of variable names -> list
@@ -211,13 +211,21 @@ def get_dataframe(col_data):
     return all_df
 
 
-def plot_single_trace(df, var_list, with_time=False, anomalies=None, is_xticks=False):
+def plot_single_trace(df, 
+                      var_list, 
+                      with_time=False, 
+                      ground_truths=None, 
+                      is_xticks=False, 
+                      gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip'],
+                      detections=None,
+                      dt_classlist=['detection'],
+                      ):
     '''
     This function plots the traces with dataframe as input
-    anomalies: list of anomalies -> list, format: ( list([start index, end index]), list([start timestamp, end timestamp]), list(class) )
+    ground_truths: list of ground_truths -> list, format: ( list([start index, end index]), list([start timestamp, end timestamp]), list(class) )
     '''
-    colour_list = ['lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral'] ### 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
-    class_list = ['normal', 'communication', 'sensor', 'bitflip']
+    gt_colour_list = ['lawngreen', 'blue', 'lightcoral'] ### 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    dt_colour_list= ['red', 'purple', 'lightslategray',]
     # Create figure
     fig = go.Figure()
 
@@ -232,14 +240,15 @@ def plot_single_trace(df, var_list, with_time=False, anomalies=None, is_xticks=F
                     go.Scatter(x=list(df[df_col[0]]), y=list(df[df_col[1]]), name=df_col[1], mode='markers', marker=dict(size=10, color='midnightblue')),   ### equivalent to: y=list(df['trace1'])
                     )
         
-    ### plot anomalies
-    if anomalies != None:
-        ### sperate the content of anomalies
-        anomalies_values = anomalies[0]
-        anomalies_xticks = anomalies[1]
-        anomalies_class = anomalies[2]
+    ### plot ground_truths
+    if ground_truths != None:
+        gt_class_list = gt_classlist
+        ### sperate the content of ground_truths
+        ground_truths_values = ground_truths[0]
+        ground_truths_xticks = ground_truths[1]
+        ground_truths_class = ground_truths[2]
 
-        for (start_ind, end_ind), (start_ts, end_ts), cls in zip(anomalies_values, anomalies_xticks, anomalies_class):
+        for (start_ind, end_ind), (start_ts, end_ts), cls in zip(ground_truths_values, ground_truths_xticks, ground_truths_class):
             ### check if time on x-axis
             if with_time:
                 start = start_ts
@@ -249,7 +258,7 @@ def plot_single_trace(df, var_list, with_time=False, anomalies=None, is_xticks=F
                 end = end_ind
 
             #### select colour based on class
-            fill_colour = colour_list[cls]
+            fill_colour = gt_colour_list[cls-1]
             fig.add_shape(type="rect", # specify the shape type "rect"
                     xref="x", # reference the x-axis
                     yref="paper", # reference the y-axis
@@ -280,7 +289,7 @@ def plot_single_trace(df, var_list, with_time=False, anomalies=None, is_xticks=F
                     )
         
         ##### add legend for anomaly based on colours/class
-        for colour, name in zip(colour_list, class_list):
+        for colour, name in zip(gt_colour_list, gt_class_list):
             fig.add_trace(go.Scatter(
                 x=[None],  # these traces will not have any data points
                 y=[None],
@@ -289,6 +298,67 @@ def plot_single_trace(df, var_list, with_time=False, anomalies=None, is_xticks=F
                 showlegend=True,
                 name=name,
             ))
+
+    ### plot detections
+    if detections != None:
+        dt_class_list = dt_classlist
+        ### sperate the content of detections
+        detections_values = detections[0]
+        detections_xticks = detections[1]
+        detections_class = detections[2]
+
+        for (start_ind, end_ind), (start_ts, end_ts), cls in zip(detections_values, detections_xticks, detections_class):
+            ### check if time on x-axis
+            if with_time:
+                start = start_ts
+                end = end_ts
+            else:
+                start = start_ind
+                end = end_ind
+
+            #### select colour based on class
+            fill_colour = dt_colour_list[cls]
+            fig.add_shape(type="rect", # specify the shape type "rect"
+                    xref="x", # reference the x-axis
+                    yref="paper", # reference the y-axis
+                    x0=start, # the x-coordinate of the left side of the rectangle
+                    y0=0, # the y-coordinate of the bottom of the rectangle
+                    x1=end, # the x-coordinate of the right side of the rectangle
+                    y1=1, # the y-coordinate of the top of the rectangle
+                    fillcolor=fill_colour, # the fill color
+                    opacity=0.5, # the opacity
+                    layer="below", # draw shape below traces
+                    line_width=0, # outline width
+                    )
+            
+            # Add dotted lines on the sides of the rectangle
+            for x in [start, end]:
+                fig.add_shape(type="line",
+                        xref="x",
+                        yref="paper",
+                        x0=x,
+                        y0=0,
+                        x1=x,
+                        y1=1,
+                        line=dict(
+                            color=fill_colour,
+                            width=2,
+                            dash="dot",
+                        ),
+                    )
+        
+        ##### add legend for anomaly based on colours/class
+        for colour, name in zip(dt_colour_list, dt_class_list):
+            fig.add_trace(go.Scatter(
+                x=[None],  # these traces will not have any data points
+                y=[None],
+                mode='markers',
+                marker=dict(size=10, color=colour),
+                showlegend=True,
+                name=name,
+            ))
+
+
     ### generate x ticks with timestamp and index num  
     x_data = df[df_col[0]]
     if is_xticks == True and with_time == False:
@@ -356,6 +426,28 @@ def plot_single_trace(df, var_list, with_time=False, anomalies=None, is_xticks=F
 
     fig.show()
     # break
+
+def prepare_gt(path):
+    '''
+    path: path to the test data file which is labelled -> str
+
+    return:
+    label_content: list of labels to plot (for required for plot_single_trace)-> list
+    '''
+    labels = read_json(path)
+    ########## extract indeices of the labels for plotting ##########
+    labels_content = labels['labels']
+    label_trace_name = list(labels_content.keys())[0]
+    label_content = labels_content[label_trace_name]
+
+    label_plot_values = [(x[0], x[1]) for x in label_content]
+    label_plot_x_ticks = [(x[2], x[3]) for x in label_content]
+    label_plot_class = [x[4] for x in label_content]
+
+    label_content = (label_plot_values, label_plot_x_ticks, label_plot_class)   ####### in format (values, x_ticks(timestamp), class)
+
+    return label_content
+
 
 def index2timestamp(df, index):
     '''
