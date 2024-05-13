@@ -1,7 +1,7 @@
 import os
 import json
 import pandas as pd
-
+import numpy as np
 import plotly.graph_objects as go
 
 from collections import defaultdict 
@@ -120,6 +120,13 @@ def read_traces(trace_path):
     '''
     with open(trace_path, 'r') as f:
         data = json.load(f)
+    return data
+
+def load_sample(file_path):
+    '''
+    for numpy files
+    '''
+    data = np.load(file_path, allow_pickle=False)
     return data
 
 
@@ -663,3 +670,11 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
             fig.show()
 
             # break
+
+
+def write_to_csv(data, name):
+    '''
+    data in dict format, where keys form the column names
+    '''
+    df = pd.DataFrame(data)
+    df.to_csv(name+'.csv', index=False)
