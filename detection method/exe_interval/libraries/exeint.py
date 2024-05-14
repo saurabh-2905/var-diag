@@ -180,9 +180,66 @@ class exeInt:
                     print(f'Anomaly detected for {var} in {filename} at {i}th event')
                     print(f'Execution interval: {exe_time}')
                     # detected_anomalies += [[(var, var_tracking[var][-2]), (var, var_tracking[var][-1]), os.path.basename(sample_path)]]
-                    detected_anomalies += [[var, (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]
+                    detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
 
         return detected_anomalies
+    
+
+    def remove_duplicates(self, detections, diff_val=2):
+        '''
+        This fucntions removes multiple detections that are caused because of multiple variables
+        Each anomaly that occurs, affects group of variables, resulting in multiple detections for single ground truth
+        This function groups the detections based on the time difference between them and selects one from each group
+
+        detections: list of detected anomalies -> list -> in format: [[(var1, 0), (ts1, ts2), filename], [(var2, 0), (ts1, ts2), filename], ....]
+        diff_val: time difference threshold in seconds to group detections -> int/float
+
+        return:
+        dedup_detection: list of deduplicated detections -> list
+        '''
+        DIFF_VAL = diff_val
+        pred = detections
+        ### sort the list using the first timestamp of every detection
+        pred = sorted(pred, key=lambda x: x[1][0])
+        print('sorted detecions:', pred)
+        det_ts1 = [ x[1][0]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
+        print(det_ts1)
+        group = []
+        group_ind = []
+        aggregated_ts = []
+        aggregated_ts_ind = []
+        for xi, (x1, x2) in enumerate(zip(det_ts1[0:-1], det_ts1[1:])):
+            # print(xi)
+            diff_ts = abs(x2 - x1)
+            # print(diff_ts, x1, x2)
+            ### decision to wether or not group detections
+            if diff_ts < DIFF_VAL:
+                group += [pred[xi]]
+                group_ind += [xi]
+                if xi == len(det_ts1)-2:  ### for last pair
+                    group += [pred[xi+1]]
+                    group_ind += [xi+1]
+                    aggregated_ts_ind += [group_ind]
+                    aggregated_ts += [group]
+            elif diff_ts >= DIFF_VAL:
+                group_ind += [xi]
+                group += [pred[xi]]   ### group the predictions which have time diff less than 2 seconds
+                # print(group)
+                aggregated_ts_ind += [group_ind]   
+                aggregated_ts += [group]    ### collect all the groups
+                group = []
+                if xi == len(det_ts1)-2:   ### for last pair
+                    group += [pred[xi+1]]
+                    group_ind += [xi+1]
+                    aggregated_ts_ind += [group_ind]
+                    aggregated_ts += [group]
+
+        ### de-duplicate the detections (select one from each group)
+        dedup_detection = []
+        for gp in aggregated_ts:
+            dedup_detection += [gp[0]]    ### take first detection from each group
+
+        return dedup_detection, aggregated_ts
     
 
     def viz_thresholds(self, exe_list, confidence_intervals, thresholds):
