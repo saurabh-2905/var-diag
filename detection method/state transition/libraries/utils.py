@@ -393,7 +393,7 @@ def plot_single_trace(df,
         ),
         yaxis=dict(
             title="Variables",
-            tickvals=[k for k in range(1,len(var_list)+1)],
+            tickvals=[k for k in range(0,len(var_list))],
             ticktext= var_list,
             tickfont = dict(size = FONTSIZE),
             titlefont = dict(size = FONTSIZE),
