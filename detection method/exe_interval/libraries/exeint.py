@@ -237,7 +237,9 @@ class exeInt:
         ### de-duplicate the detections (select one from each group)
         dedup_detection = []
         for gp in aggregated_ts:
-            dedup_detection += [gp[0]]    ### take first detection from each group
+            # dedup_detection += [gp[0]]    ### take first detection from each group
+            select_sample = len(gp)//2
+            dedup_detection += [gp[select_sample]]
 
         return dedup_detection, aggregated_ts
     
