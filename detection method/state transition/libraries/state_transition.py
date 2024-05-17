@@ -207,27 +207,30 @@ class StateTransition:
                                 iou_pred += [iou]
 
                             ### include all the detection with case1, even if there are multiple detections, as they are all correct
+                            perfect_pred = False
                             for io, iou in enumerate(iou_pred):
                                 if iou == 1.0:
                                     best_pred = tmp_pred[io]
                                     iou_pred[io] = 0
                                     if best_pred[0] not in y_pred_ind:
+                                        perfect_pred = True
                                         y_pred_ind += [best_pred[0]]
                                         correct_pred += [best_pred[1]]
                                         y_true += [1]
                                         y_pred += [1]
-                                
-                            best_pred_ind = iou_pred.index(max(iou_pred))
-                            best_pred = tmp_pred[best_pred_ind]
-                            print('ground_truth', gt)
-                            print('best_pred:', best_pred)
-                            print('y_pred_ind:', y_pred_ind)
-                            # gt_pred[gt_ind] += [pred]  ### store the best detection for the given gt
-                            if best_pred[0] not in y_pred_ind:
-                                y_pred_ind += [best_pred[0]]
-                                correct_pred += [best_pred[1]]
-                                y_true += [1]
-                                y_pred += [1]
+
+                            if not perfect_pred:    ### skip selecting the best detection if there is a perfect detection (case 1)
+                                best_pred_ind = iou_pred.index(max(iou_pred))
+                                best_pred = tmp_pred[best_pred_ind]
+                                print('ground_truth', gt)
+                                print('best_pred:', best_pred)
+                                print('y_pred_ind:', y_pred_ind)
+                                # gt_pred[gt_ind] += [pred]  ### store the best detection for the given gt
+                                if best_pred[0] not in y_pred_ind:
+                                    y_pred_ind += [best_pred[0]]
+                                    correct_pred += [best_pred[1]]
+                                    y_true += [1]
+                                    y_pred += [1]
                         else:
                             # print('else:', tmp_pred)
                             print('y_pred_ind:', y_pred_ind)
