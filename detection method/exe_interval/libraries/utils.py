@@ -231,7 +231,7 @@ def plot_single_trace(df,
     This function plots the traces with dataframe as input
     ground_truths: list of ground_truths -> list, format: ( list([start index, end index]), list([start timestamp, end timestamp]), list(class) )
     '''
-    gt_colour_list = ['lawngreen', 'blue', 'lightcoral'] ### 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    gt_colour_list = ['lawngreen', 'blue', 'goldenrod'] ### 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
     dt_colour_list= ['red', 'purple', 'lightslategray',]
     # Create figure
     fig = go.Figure()
