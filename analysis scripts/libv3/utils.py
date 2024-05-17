@@ -122,6 +122,7 @@ def read_traces(trace_path):
         data = json.load(f)
     return data
 
+
 def load_sample(file_path):
     '''
     for numpy files

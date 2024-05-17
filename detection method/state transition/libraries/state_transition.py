@@ -1,7 +1,7 @@
 from collections import defaultdict
 import numpy as np
 import os
-from libraries.utility import load_sample, write_to_csv, read_traces
+from libraries.utils import read_traces, load_sample, write_to_csv
 import json
 
 
