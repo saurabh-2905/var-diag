@@ -244,6 +244,142 @@ class exeInt:
         return dedup_detection, aggregated_ts
     
 
+    def bbox_iou(self, b1_x1, b1_x2, b2_x1, b2_x2,):
+        """
+        Returns the IoU of two bounding boxes
+        """
+
+        # Get the coordinates of bounding boxes
+        b1_y1 = b2_y1 = 0
+        b1_y2 = b2_y2 = 1
+
+        # get the corrdinates of the intersection rectangle
+        inter_rect_x1 = max(b1_x1, b2_x1)
+        inter_rect_y1 = max(b1_y1, b2_y1)
+        inter_rect_x2 = min(b1_x2, b2_x2)
+        inter_rect_y2 = min(b1_y2, b2_y2)
+        # Intersection area
+        inter_area = np.clip(inter_rect_x2 - inter_rect_x1 , a_min=0, a_max=None) * np.clip(
+            inter_rect_y2 - inter_rect_y1 , a_min=0, a_max=None)
+        # Union Area
+        b1_area = (b1_x2 - b1_x1 ) * (b1_y2 - b1_y1 )
+        b2_area = (b2_x2 - b2_x1 ) * (b2_y2 - b2_y1 )
+        print('inter:', inter_area)
+        iou = inter_area / (b1_area + b2_area - inter_area + 1e-16)
+
+        return iou
+    
+
+    def get_correct_detections(self, detection, ground_truth):
+        '''
+        detection -> list: detections from the  -> [[(var1, 0), (ts1, ts2), file_name], [], [], ...., []]
+        ground_truth -> list: ground truth labels -> [[(ind1, ind2), (ts1, ts2), class], [], [], ...., []]
+
+        return:
+        y_pred -> list: [1, 1, 0, 1, 0, 0, ...., 1]
+        y_true -> list: [1, 1, 1, 1, 0, 0, ...., 0]
+        '''
+        
+        gt_pred = defaultdict(list)      ### list of detections for each gt instance. The index of list denote its respective pred at that index, and list contains gt for that pred.
+        rest_pred = [] ### list of detections that are not associated with any gt instance
+        correct_pred = [] ### list of correct predictions
+        y_true_ind = []
+        y_pred_ind = []
+        y_true = []
+        y_pred = []
+        # print('gt_pred:', gt_pred)
+        # print(y_pred, y_true)
+
+        if len(ground_truth) != 0:
+            for gt_ind ,gt in enumerate(ground_truth):
+                ind1 = gt[0]
+                ind2 = gt[1]
+                gt_ts1 = gt[2]
+                gt_ts2 = gt[3]
+                class_label = gt[4]
+
+                if len(detection) != 0:
+                    tmp_pred = []
+                    for im, pred in enumerate(detection):
+                        state1, state2 = pred[0]
+                        pd_ts1, pd_ts2 = pred[1]
+                        filename = pred[2]
+                        # print('(gt_ts1, gt_ts2), (pd_ts1, pd_ts2)', (gt_ts1, gt_ts2), (pd_ts1, pd_ts2))
+
+                        cond_1 = pd_ts1 >= gt_ts1 and pd_ts2 <= gt_ts2  ### check if the detection timestamp is within the ground truth timestamp (case 1)
+                        cond_2 = pd_ts1 <= gt_ts1 and pd_ts2 >= gt_ts2  ### check if the gorund truth timestamp is within the detection timestamp (case 2)
+                        cond_3 = pd_ts1 >= gt_ts1 and pd_ts1 <= gt_ts2 and pd_ts2 >= gt_ts2    ### partial detection on right of the ground truths, check 5 second difference after this (case 3)
+                        cond_4 = pd_ts2 <= gt_ts2 and pd_ts2 >= gt_ts1 and pd_ts1 <= gt_ts1   ### partial detection on left of the ground truths, check 5 second difference after this (case 4)
+
+                        
+                        if cond_1 or cond_2 or cond_3 or cond_4:
+                            print(gt_ind, im, cond_1, cond_2, cond_3, cond_4)
+                            tmp_pred += [(im, pred, cond_1)]    ### store all correct predictions that match with current gt      ### if cond_1 is TRUE, that means the detection is inside the gt and even multiple pred can be correct                  
+
+                    if tmp_pred != []:
+                        # print('tmp_pred', tmp_pred)
+                        y_true_ind += [gt_ind]
+                        ### if there are multiple correct predictions for a single gt, then choose the one that is closest to gt
+                        if len(tmp_pred) > 1:
+                            # print('if:', tmp_pred)
+                            iou_pred = []
+                            for ip, pred, case_1 in tmp_pred:
+                                print('ip, pred', ip, pred)
+                                state1, state2 = pred[0]
+                                pd_ts1, pd_ts2 = pred[1]
+                                filename = pred[2]
+                                ### get IOU for all detections with gt
+                                if not case_1:
+                                    iou = self.bbox_iou(gt_ts1, gt_ts2, pd_ts1, pd_ts2)    ### calculate the IOU between the ground truth and the detection to evaluate which is the best detection for the given gt
+                                else:
+                                    iou = 1.0
+                                iou_pred += [iou]
+
+                            ### include all the detection with case1, even if there are multiple detections, as they are all correct
+                            for io, iou in enumerate(iou_pred):
+                                if iou == 1.0:
+                                    best_pred = tmp_pred[io]
+                                    iou_pred[io] = 0
+                                    if best_pred[0] not in y_pred_ind:
+                                        y_pred_ind += [best_pred[0]]
+                                        correct_pred += [best_pred[1]]
+                                        y_true += [1]
+                                        y_pred += [1]
+                                
+                            best_pred_ind = iou_pred.index(max(iou_pred))
+                            best_pred = tmp_pred[best_pred_ind]
+                            print('ground_truth', gt)
+                            print('best_pred:', best_pred)
+                            print('y_pred_ind:', y_pred_ind)
+                            # gt_pred[gt_ind] += [pred]  ### store the best detection for the given gt
+                            if best_pred[0] not in y_pred_ind:
+                                y_pred_ind += [best_pred[0]]
+                                correct_pred += [best_pred[1]]
+                                y_true += [1]
+                                y_pred += [1]
+                        else:
+                            # print('else:', tmp_pred)
+                            print('y_pred_ind:', y_pred_ind)
+                            if tmp_pred[0][0] not in y_pred_ind:
+                                y_pred_ind += [tmp_pred[0][0]]
+                                correct_pred += [tmp_pred[0][1]]  
+                                y_true += [1]
+                                y_pred += [1]     
+                    else:
+                        ### this means no detection for this gt, denots FN
+                        y_true += [1]
+                        y_pred += [0]
+            
+        ### calculate FP
+        for im, pred in enumerate(detection):
+            if im not in y_pred_ind:
+                rest_pred += [pred]
+                y_true += [0]
+                y_pred += [1]
+
+        return correct_pred, rest_pred, y_pred, y_true
+    
+
     def viz_thresholds(self, exe_list, confidence_intervals, thresholds):
         for key in exe_list.keys():
             fig = go.Figure()
