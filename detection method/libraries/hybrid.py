@@ -12,6 +12,10 @@ class hybrid:
         self.thresholds = None
         self.exe_list = None
 
+
+        ### st outputs
+        self.transitions = None
+
     def train(self, train_data_path):
         ####### train ei model #######
         exe_list, filewise_exe_list = self.ei.get_exeint(train_data_path)
@@ -19,6 +23,10 @@ class hybrid:
         ###calculate dynamic thresholds 
         thresholds = self.ei.get_dynamicthresh(exe_list)
         self.thresholds = thresholds    ### update to class var so that it can be accessed by other functions in the class
+
+        ####### train st model #######
+        self.model.train(train_data_path)
+        self.transitions = self.model.transitions
 
     def viz_thresholds(self):
         self.ei.viz_thresholds(self.exe_list, thresholds=self.thresholds)
