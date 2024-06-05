@@ -314,7 +314,7 @@ class exeInt:
                         
                         if cond_1 or cond_2 or cond_3 or cond_4:
                             print(gt_ind, im, cond_1, cond_2, cond_3, cond_4)
-                            tmp_pred += [(im, pred, cond_1)]    ### store all correct predictions that match with current gt      ### if cond_1 is TRUE, that means the detection is inside the gt and even multiple pred can be correct                  
+                            tmp_pred += [(im, pred, cond_1, cond_2, cond_3, cond_4)]    ### store all correct predictions that match with current gt      ### if cond_1 is TRUE, that means the detection is inside the gt and even multiple pred can be correct                  
 
                     if tmp_pred != []:
                         # print('tmp_pred', tmp_pred)
@@ -323,7 +323,7 @@ class exeInt:
                         if len(tmp_pred) > 1:
                             # print('if:', tmp_pred)
                             iou_pred = []
-                            for ip, pred, case_1 in tmp_pred:
+                            for ip, pred, case_1, case_2, case_3, case_4 in tmp_pred:
                                 print('ip, pred', ip, pred)
                                 state1, state2 = pred[0]
                                 pd_ts1, pd_ts2 = pred[1]
@@ -383,22 +383,24 @@ class exeInt:
         return correct_pred, rest_pred, y_pred, y_true
     
 
-    def viz_thresholds(self, exe_list, confidence_intervals, thresholds):
+    def viz_thresholds(self, exe_list, confidence_intervals=None, thresholds=None):
         for key in exe_list.keys():
             fig = go.Figure()
 
             # Histogram
             fig.add_trace(go.Histogram(x=exe_list[key], nbinsx=100, name='execution intervals', histnorm='probability', marker=dict(color='midnightblue')))
 
-            # Vertical lines
-            fig.add_shape(type="line", x0=confidence_intervals[key][0], x1=confidence_intervals[key][0], y0=0, y1=1, yref='paper', line=dict(color="Red", dash="dash"))
-            fig.add_shape(type="line", x0=confidence_intervals[key][1], x1=confidence_intervals[key][1], y0=0, y1=1, yref='paper', line=dict(color="Red", dash="dash"))
-            fig.add_shape(type="line", x0=min(thresholds[key]), x1=min(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
-            fig.add_shape(type="line", x0=max(thresholds[key]), x1=max(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
-
-            # Add traces for the lines to include them in the legend
-            fig.add_trace(go.Scatter(x=[confidence_intervals[key][0]], y=[0], mode='lines', name='Confidence Interval', line=dict(color="Red", dash="dash"), showlegend=True))
-            fig.add_trace(go.Scatter(x=[min(thresholds[key])], y=[0], mode='lines', name='Dynamic Threshold', line=dict(color="Green", dash="dash"), showlegend=True))
+            if confidence_intervals != None:
+                # Vertical lines
+                fig.add_shape(type="line", x0=confidence_intervals[key][0], x1=confidence_intervals[key][0], y0=0, y1=1, yref='paper', line=dict(color="Red", dash="dash"))
+                fig.add_shape(type="line", x0=confidence_intervals[key][1], x1=confidence_intervals[key][1], y0=0, y1=1, yref='paper', line=dict(color="Red", dash="dash"))
+                # Add traces for the lines to include them in the legend
+                fig.add_trace(go.Scatter(x=[confidence_intervals[key][0]], y=[0], mode='lines', name='Confidence Interval', line=dict(color="Red", dash="dash"), showlegend=True))
+            
+            if thresholds != None:
+                fig.add_shape(type="line", x0=min(thresholds[key]), x1=min(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
+                fig.add_shape(type="line", x0=max(thresholds[key]), x1=max(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
+                fig.add_trace(go.Scatter(x=[min(thresholds[key])], y=[0], mode='lines', name='Dynamic Threshold', line=dict(color="Green", dash="dash"), showlegend=True))
 
             # Layout
             fig.update_layout(title=key, xaxis_title="Value", yaxis_title="Count", bargap=0.2, bargroupgap=0.1, title_font_size=20,
