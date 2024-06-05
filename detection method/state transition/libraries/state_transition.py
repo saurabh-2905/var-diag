@@ -253,63 +253,6 @@ class StateTransition:
 
         return correct_pred, rest_pred, y_pred, y_true
     
-    # def get_ypred_ytrue(detection, ground_truth):
-    #     '''
-    #     detection -> list: detections from the st model -> [[(var1, var2), (ts1, ts2), file_name], [], [], ...., []]
-    #     ground_truth -> list: ground truth labels -> [[(ind1, ind2), (ts1, ts2), class], [], [], ...., []]
-
-    #     return:
-    #     y_pred -> list: [1, 1, 0, 1, 0, 0, ...., 1]
-    #     y_true -> list: [1, 1, 1, 1, 0, 0, ...., 0]
-    #     '''
-    #     y_pred = []
-    #     y_true = []
-
-    #     # print(y_pred, y_true)
-    #     if len(detection) != 0:
-    #         detected_flag = False
-    #         for im, pred in enumerate(detection):
-    #             state1, state2 = pred[0]
-    #             pd_ts1, pd_ts2 = pred[1]
-    #             filename = pred[2]
-
-    #             if len(ground_truth) != 0:
-    #                 for gt in ground_truth:
-    #                     ind1 = gt[0]
-    #                     ind2 = gt[1]
-    #                     gt_ts1 = gt[2]
-    #                     gt_ts2 = gt[3]
-    #                     class_label = gt[4]
-
-    #                     cond_1 = pd_ts1 > gt_ts1 and pd_ts1 < gt_ts2  ### check if the detection timestamp is within the ground truth timestamp
-    #                     cond_2 = pd_ts2 > gt_ts1 and pd_ts2 < gt_ts2  ### check if the detection timestamp is within the ground truth timestamp
-
-    #                     if cond_1 or cond_2:
-    #                         detected_flag = True
-    #                         ### remove all the detected instances to check which instances not detected
-    #                         ground_truth.remove(gt)
-    #                         break ### not for testing, part of code
-
-    #             if detected_flag==True:
-    #                 ### TP
-    #                 print('TP:', detection)
-    #                 y_pred += [1]
-    #                 y_true += [1]
-    #                 detected_flag=False
-    #             else:
-    #                 ### FP
-    #                 print('FP:', detection)
-    #                 y_pred += [1]
-    #                 y_true += [0]
-
-    #     if len(ground_truth) != 0:
-    #         for gt in ground_truth:
-    #             ### FN
-    #             print('FN:', gt)
-    #             y_pred += [0]
-    #             y_true += [1]
-
-    #     return y_pred, y_true
     
 
 class StateTransitionProb:
