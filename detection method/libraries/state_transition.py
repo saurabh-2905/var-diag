@@ -185,7 +185,7 @@ class StateTransition:
                         
                         if cond_1 or cond_2 or cond_3 or cond_4:
                             print(gt_ind, im, cond_1, cond_2, cond_3, cond_4)
-                            tmp_pred += [(im, pred, cond_1)]    ### store all correct predictions that match with current gt      ### if cond_1 is TRUE, that means the detection is inside the gt and even multiple pred can be correct                  
+                            tmp_pred += [(im, pred, cond_1, cond_2, cond_3, cond_4)]    ### store all correct predictions that match with current gt      ### if cond_1 is TRUE, that means the detection is inside the gt and even multiple pred can be correct                  
 
                     if tmp_pred != []:
                         # print('tmp_pred', tmp_pred)
@@ -194,7 +194,7 @@ class StateTransition:
                         if len(tmp_pred) > 1:
                             # print('if:', tmp_pred)
                             iou_pred = []
-                            for ip, pred, case_1 in tmp_pred:
+                            for ip, pred, case_1, case_2, case_3, case_4 in tmp_pred:
                                 print('ip, pred', ip, pred)
                                 state1, state2 = pred[0]
                                 pd_ts1, pd_ts2 = pred[1]
