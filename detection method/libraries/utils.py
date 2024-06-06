@@ -112,7 +112,7 @@ def read_json(path: str):
 
 def read_traces(trace_path):
     '''
-    read the trace files and extract variable names
+    read the trace files (json) and extract variable names
     trace_path: path to the trace files -> str
 
     return:
