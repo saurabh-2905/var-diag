@@ -157,6 +157,7 @@ class exeInt:
         '''
         detected_anomalies = []
         sample_data = read_traces(sample_path)
+        # sample_data  = sample_data[0:500]    ### get only first 500 events for testing
         filename = sample_path.split('/')[-1].split('.')[0]
         ### iterate trace and make decision for each exe interval
         var_tracking = {}
@@ -243,6 +244,83 @@ class exeInt:
 
         return dedup_detection, aggregated_ts
     
+
+    def merge_detections(self, detections, diff_val=2):
+        '''
+        This fucntions merges multiple detections that are less the 2 seconds apart. 
+        These multiple detections can be caused because of multiple variables or even multiple anomalies that are colser
+        Each anomaly that occurs, affects group of variables, resulting in multiple detections for single ground truth
+        This function groups the detections based on the time difference between them and selects one from each group
+
+        detections: list of detected anomalies -> list -> in format: [[(var1, 0), (ts1, ts2), filename], [(var2, 0), (ts1, ts2), filename], ....]
+        diff_val: time difference threshold in seconds to group detections -> int/float
+
+        return:
+        dedup_detection: list of deduplicated detections -> list
+        '''
+        DIFF_VAL = diff_val
+        pred = detections
+        ### sort the list using the first timestamp of every detection
+        pred = sorted(pred, key=lambda x: x[1][0])
+        print('sorted detecions:', pred)
+        det_ts1 = [ x[1][0]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
+        det_ts2 = [ x[1][1]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
+        # print('merge ts:', pred[0][1], det_ts1[0], det_ts2[0])
+        group = []
+        group_ind = []
+        aggregated_ts = []
+        aggregated_ts_ind = []
+        for xi, (x1, x2, y1, y2) in enumerate(zip(det_ts1[0:-1], det_ts1[1:], det_ts2[0:-1], det_ts2[1:])):    ### get the first and last timestamp of every detection
+            # print(xi)
+            diff_ts1 = abs(x2 - x1)
+            # diff_ts2 = abs(y2 - y1)    ### did not use it because the problem was solved by increasing diff_vaal to 5
+            print('Merge diff:', diff_ts1, x1, x2)
+            ### decision to wether or not group detections
+            if diff_ts1 < DIFF_VAL:
+                group += [pred[xi]]
+                group_ind += [xi]
+                if xi == len(det_ts1)-2:  ### for last pair
+                    group += [pred[xi+1]]
+                    group_ind += [xi+1]
+                    aggregated_ts_ind += [group_ind]
+                    aggregated_ts += [group]
+            elif diff_ts1 >= DIFF_VAL:
+                group_ind += [xi]
+                group += [pred[xi]]   ### group the predictions which have time diff less than 2 seconds
+                # print(group)
+                aggregated_ts_ind += [group_ind]   
+                aggregated_ts += [group]    ### collect all the groups
+                group = []
+                if xi == len(det_ts1)-2:   ### for last pair
+                    group += [pred[xi+1]]
+                    group_ind += [xi+1]
+                    aggregated_ts_ind += [group_ind]
+                    aggregated_ts += [group]
+
+        ### merge the detections (starting TS from first detection and ending TS from last detection from each group)
+        merge_detection = []
+        for gp in aggregated_ts:    #### read single group of detections. in format list of detections
+            ### sort the detections in ascending order based on the first timestamp
+            gp = sorted(gp, key=lambda x: x[1][0])
+            #### scan through the group and get the lowest first timestamp and highest last timestamp
+            lowest_ts = gp[0][1][0]
+            highest_ts = gp[-1][1][1]
+            first_event = gp[0][0][0]
+            last_event = gp[-1][0][0]
+            for i, (_, gts, _) in enumerate(gp):
+                if gts[0] < lowest_ts:
+                    lowest_ts = gts[0]
+                    first_event = gp[i][0][0]
+                if gts[1] > highest_ts:
+                    highest_ts = gts[1]
+                    last_event = gp[i][0][0]
+
+
+            merge_detection += [[(first_event, last_event), (lowest_ts, highest_ts), gp[0][2]]]    
+            ### eg. [(10, 8), (27249, 30675), 'trace2-sensor'], where first tuple contains variable of first and last detection in group, second tuple is the first TS of first detection and second ts of last detection, and the file name is taken from first detection
+
+        return merge_detection, aggregated_ts
+
 
     def bbox_iou(self, b1_x1, b1_x2, b2_x1, b2_x2,):
         """
