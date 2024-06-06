@@ -103,6 +103,7 @@ class StateTransition:
             sample_data = read_traces(file_path)
             print(file_path)
 
+        # sample_data  = sample_data[0:500]  ### get only first 500 events for testing
         for event1, event2 in zip(sample_data[0:-1], sample_data[1:]):
             #print(event1,event2)
             var1, var2 = event1[0], event2[0]
