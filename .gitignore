@@ -158,7 +158,7 @@ Theft-protection-in-IoT-devices-/
 scientific\ practise
 to_discuss
 trace_data
-csv
+*.csv
 */eventtraces
 */exe_time
 */min_max
