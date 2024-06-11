@@ -144,7 +144,7 @@ class exeInt:
 
             filewise_exe_list[filename] = intervals
 
-            return exe_list, filewise_exe_list
+        return exe_list, filewise_exe_list
 
 
     def test_single(self, sample_path, thresholds):
