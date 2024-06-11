@@ -671,6 +671,22 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
 
             # break
 
+def generate_instances(sample_data, window_size=100, sliding_interval=1):
+    '''
+    generate instances from the sample data (for novelty methods)
+    sample_data: list of samples -> list
+    window_size: size of the window -> int
+    sliding_interval: sliding interval -> int
+
+    return:
+    instances: list of instances -> list
+    '''
+    instances = []
+    for i in range(0, len(sample_data), sliding_interval):
+        if i+window_size <= len(sample_data):
+            instances.append(sample_data[i:i+window_size])
+    return instances
+
 
 def write_to_csv(data, name):
     '''
