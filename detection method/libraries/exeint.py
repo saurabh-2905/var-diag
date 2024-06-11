@@ -7,6 +7,8 @@ from collections import defaultdict
 
 import plotly.graph_objects as go
 
+from sklearn.neighbors import LocalOutlierFactor
+
 
 
 
@@ -91,7 +93,25 @@ class exeInt:
 
         return thresholds
 
+    def train_lof(self, exe_list):
+        '''
+        exe_list: dictionary containing the execution intervals for each variable for all files -> dict
 
+        return:
+        lof_models: dictionary containing the lof models for each variable -> dict
+        '''
+        lof_models = {}
+        for key in exe_list.keys():
+            # print(key)
+            x_data = exe_list[key]
+            x_data = [round(x, 1) for x in x_data]
+            x_data = np.array(x_data).reshape(-1, 1)
+            # print(x_data)
+
+            lof = LocalOutlierFactor(n_neighbors=2, contamination=0.01, novelty=True).fit(x_data)
+            lof_models[key] = lof
+
+        return lof_models
 
     def get_exeint(self, train_data_path):
         '''
@@ -147,7 +167,7 @@ class exeInt:
         return exe_list, filewise_exe_list
 
 
-    def test_single(self, sample_path, thresholds):
+    def test_single(self, sample_path, thresholds=None, lof_models=None):
         '''
         sample_path: path to the test trace file -> str
         thresholds: dictionary containing the threshold values for each variable -> dict
@@ -176,12 +196,26 @@ class exeInt:
                 ### convert timestampt from miliseconds to seconds, and only consdider 1 decimal point. 
                 exe_time = round(exe_time/1000, 1)
 
-                ### check if exe_time is an outlier
-                if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
-                    print(f'Anomaly detected for {var} in {filename} at {i}th event')
-                    print(f'Execution interval: {exe_time}')
-                    # detected_anomalies += [[(var, var_tracking[var][-2]), (var, var_tracking[var][-1]), os.path.basename(sample_path)]]
-                    detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                if thresholds != None:
+                    ### check if exe_time is an outlier
+                    if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
+                        print(f'Anomaly detected for {var} in {filename} at {i}th event')
+                        print(f'Execution interval: {exe_time}')
+                        # detected_anomalies += [[(var, var_tracking[var][-2]), (var, var_tracking[var][-1]), os.path.basename(sample_path)]]
+                        detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                
+                if lof_models != None:
+                    ### check if exe_time is an outlier
+                    lof = lof_models[var]
+                    test_data = np.array([exe_time])
+                    # print(test_data)
+                    detection = lof.predict([test_data])
+                    # print('detection:', detection)
+                    if detection == -1:
+                        print(f'Anomaly detected for {var} in {filename} at {i}th event')
+                        print(f'Execution interval: {exe_time}')
+                        # detected_anomalies += [[(var, var_tracking[var][-2]), (var, var_tracking[var][-1]), os.path.basename(sample_path)]]
+                        detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]
 
         return detected_anomalies
     
