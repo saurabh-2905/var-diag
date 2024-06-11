@@ -15,6 +15,10 @@ class hybrid:
 
         ### st outputs
         self.transitions = None
+        self.st_detections = []
+
+        ### hybrid outputs  
+        self.hybrid_detections = []
 
     def train(self, train_data_path):
         '''
@@ -42,9 +46,61 @@ class hybrid:
         '''
         #### ei testing
         self.ei_detections = self.ei.test_single(sample_path, thresholds)
-        self.st_detection = self.model.test_single(sample_path)
+        merged_detection, grouped_det = self.ei.merge_detections(self.ei_detections, diff_val=5.0)  ### merge detections for multiple variables
+        self.ei_detections = merged_detection
+        self.st_detections = self.model.test_single(sample_path)
 
-        return self.st_detection, self.ei_detections
+        self.hybrid_detections = self.combine_detections(self.ei_detections, self.st_detections)
+
+        return self.hybrid_detections
+    
+    def combine_detections(self, ei_detection, st_detection):
+        '''
+        ei_detections: list of ei detections -> list
+        st_detections: list of st detections -> list
+
+        return:
+        combined_detections: list of combined detections -> list
+        '''
+        ####### Approach 1: check if any st and ei detections intersect, give high priority to st detections since they have high precision.
+        all_detections = []
+        for ei_det in ei_detection:
+            #### structure of detection, get elements
+            ei_var = ei_det[0]
+            eits1, eits2 = ei_det[1]
+            # print('EI', eits1, eits2)
+
+            #### get all st detections within the ei detection
+            st_detections_within_ei = []
+            for i, st_det in enumerate(st_detection):
+                st_var = st_det[0]
+                stts1, stts2 = st_det[1]
+                # print('ST', i, stts1, stts2)
+
+                if eits1 <= stts1 and eits2 >= stts2:
+                    st_detections_within_ei.append(st_det)
+                    
+            if len(st_detections_within_ei) > 0:
+                for det in st_detections_within_ei:
+                    # print('Removed', det)
+                    st_detection.remove(det)
+                all_detections.extend(st_detections_within_ei)
+                # print(ei_det, 'replaced with', st_detections_within_ei)
+            else:
+                all_detections.append(ei_det)
+                # print('added', ei_det)
+
+        print('Any Detections in ST that are not in EI:')
+        print(st_detection)
+        all_detections.extend(st_detection)
+        ############# Approach 1 end #############        
+
+        return all_detections
+    
+
+    def get_correct_detections(self, ei_detections, st_detections):
+        correct_pred, rest_pred, y_pred, y_true = self.ei.get_correct_detections(ei_detections, st_detections)
+        return correct_pred, rest_pred, y_pred, y_true
 
     def viz_thresholds(self):
         self.ei.viz_thresholds(self.exe_list, thresholds=self.thresholds)
