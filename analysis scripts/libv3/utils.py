@@ -609,10 +609,13 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
                 _y_all.extend(y)
                 legend_lab.append(l)
                 
-                # plt.plot(x, y, ls=line_style[num%4], marker=markers[num%11])
                 fig.add_trace(
                     go.Scatter(x=ind, y=y, name=l, mode='markers', marker=dict(size=10, color='midnightblue'))
                 )
+
+                # fig.add_trace(
+                #     go.Scatter(y=y, name=l, mode='markers', marker=dict(size=10, color='midnightblue'))
+                # )
                 
                 # Add range slider, title, yticks, axes labels
                 fig.update_layout(
