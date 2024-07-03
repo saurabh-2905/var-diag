@@ -174,3 +174,4 @@ scientific practise/
 *.npy
 *.pptx
 *.json
+*tokens*
