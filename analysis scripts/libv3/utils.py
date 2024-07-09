@@ -12,8 +12,8 @@ from io import StringIO
 
 #### config for plotting #####
 FONTSIZE = 15
-PLOTWIDTH = 1200
-PLOTHEIGHT = 800
+# PLOTWIDTH = 2000
+PLOTHEIGHT = 2000
 
 
 
@@ -232,6 +232,9 @@ def plot_single_trace(df,
     '''
     This function plots the traces with dataframe as input
     ground_truths: list of ground_truths -> list, format: ( list([start index, end index]), list([start timestamp, end timestamp]), list(class) )
+    
+    return:
+    fig: plotly figure -> go.Figure
     '''
     gt_colour_list = ['lawngreen', 'blue', 'goldenrod'] ### 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
     dt_colour_list= ['red', 'purple', 'lightslategray',]
@@ -370,12 +373,17 @@ def plot_single_trace(df,
 
     ### generate x ticks with timestamp and index num  
     x_data = df[df_col[0]]
+    #get index of first element of x_data
+    start_index = x_data.index[0]  
+    end_index = x_data.index[-1]  
+    # print('x_data:', x_data)
+    # print('start_index:', start_index, 'end_index:', end_index)
     if is_xticks == True and with_time == False:
-        x_ticks = [(i,x_data[i]) for i in range(0,len(x_data),10) ]
+        x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
         x_tickvals = [k for k in range(0,len(x_data),10)]
     elif is_xticks == True and with_time == True:
-        x_ticks = [(i,x_data[i]) for i in range(0,len(x_data),10) ]
-        x_tickvals = [x_data[k] for k in range(0,len(x_data),10)]
+        x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
+        x_tickvals = [x_data[k] for k in range(start_index,end_index,10)]
     elif is_xticks == False:
         x_ticks = None
         x_tickvals = None
@@ -402,7 +410,7 @@ def plot_single_trace(df,
             color='black',
         ),
         autosize=True,
-        width=PLOTWIDTH,
+        # width=PLOTWIDTH,
         height=PLOTHEIGHT,
         plot_bgcolor='rgba(0,0,0,0)',
         
@@ -420,7 +428,8 @@ def plot_single_trace(df,
         ticks='outside',
         showline=True,
         linecolor='black',
-        gridcolor='lightgrey'
+        gridcolor='lightgrey',
+        autorange=True,
     )
 
     # style all the traces
@@ -433,8 +442,8 @@ def plot_single_trace(df,
         
     )
 
-    fig.show()
-    # break
+    # fig.show()
+    return fig
 
 def prepare_gt(path):
     '''
