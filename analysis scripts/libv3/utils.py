@@ -11,15 +11,16 @@ from io import StringIO
 
 
 #### config for plotting #####
-FONTSIZE = 20
+FONTSIZE = 15
 PLOTWIDTH = 1200
 PLOTHEIGHT = 800
 
 
 
-def get_config():
+def get_config(file_name='theft_protection_config'):
     '''
     read the configuration file and extract the values
+    file_name: path to the configuration file -> str without extension
     return:
     CODE: code name -> str
     BEHAVIOUR: behaviour name -> str
@@ -28,7 +29,7 @@ def get_config():
     '''
 
     # Read the file
-    with open('libv3/exp_config.txt', 'r') as f:
+    with open(f'libv3/{file_name}.txt', 'r') as f:
         config_string = '[dummy_section]\n' + f.read()
 
     # Parse the configuration

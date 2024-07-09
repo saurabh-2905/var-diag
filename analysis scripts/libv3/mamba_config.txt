@@ -1,0 +1,4 @@
+CODE = mamba       ### application (code)
+BEHAVIOUR = normal            ### normal, faulty_data
+THREAD = single           ### single, multi
+VER = 3                     ### format of data collection
