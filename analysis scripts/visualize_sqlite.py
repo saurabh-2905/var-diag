@@ -96,6 +96,7 @@ app = dash.Dash(__name__)
 # Define the layout of the app
 app.layout = html.Div([
     html.H1("Event Data Dashboard"),
+    html.H3("Select Experiment Config:"),
     dcc.Dropdown(
         id='config-dropdown',
         options=[{'label': f"{row['code_base']} {row['version']} {row['behaviour']} {row['trial_num']}", 'value': row['id']} for _, row in config_df.iterrows()],
@@ -103,7 +104,7 @@ app.layout = html.Div([
         clearable=False
         ),
     html.Br(),
-    html.H6("Select Event Trace Range to Display:"),
+    html.H3("Select Range (Event Trace):"),
     dcc.RangeSlider(0, 100, 1, value=[0,20], id='range-slider'),
     html.Br(),
     dcc.Loading(
