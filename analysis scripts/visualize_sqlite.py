@@ -91,7 +91,7 @@ var_list = [from_number[key] for key in sorted_keys]   ### get the variable list
 # print(var_list)
 
 # Initialize the Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # Define the layout of the app
 app.layout = html.Div([
