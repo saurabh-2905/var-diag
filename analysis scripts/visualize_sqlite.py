@@ -106,7 +106,11 @@ app.layout = html.Div([
     html.H6("Select Event Trace Range to Display:"),
     dcc.RangeSlider(0, 100, 1, value=[0,20], id='range-slider'),
     html.Br(),
-    dcc.Graph(id='time-series-plot')
+    dcc.Loading(
+            [dcc.Graph(id='time-series-plot')],
+            overlay_style={"visibility":"visible", "filter": "blur(2px)"},
+            type="circle",)
+    
 ])
 
 # Define the callback to update the graph
