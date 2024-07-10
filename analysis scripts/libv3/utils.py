@@ -13,7 +13,7 @@ from io import StringIO
 #### config for plotting #####
 FONTSIZE = 15
 # PLOTWIDTH = 2000
-PLOTHEIGHT = 2000
+PLOTHEIGHT = 1500
 
 
 
@@ -479,10 +479,11 @@ def index2timestamp(df, index):
     return df['time'][index]
 
 
-def get_var_timestamps(paths_traces):
+def get_var_timestamps(paths_traces=None, df=None, config=None):
     '''
     This function takes the trace paths and extracts the variable timestamps
     paths_traces: list of paths to the trace files -> list(str)
+    df: data frame -> pd.DataFrame. in format: [time, trace]
     
     return:
     var_timestamps: list of variable timestamps -> list(dict)'''
@@ -490,20 +491,31 @@ def get_var_timestamps(paths_traces):
 
     var_timestamps = []     ### [log1, log,2, ... ] --> [{var1:[], var2:[], ....}, {}  ]
 
-    for p in paths_traces:
-        #print(p,w)
-        trace = read_traces(p)
-        #print(trace)
+    if paths_traces:
+        for p in paths_traces:
+            #print(p,w)
+            trace = read_traces(p)
+            #print(trace)
+            var_timelist = defaultdict(list)
+            # for var_name in _var_list:
+            #     print(var_name)
+            for ind, (t, ts) in enumerate(trace):
+                #print(t,ts)
+                var_timelist[t] += [[ts, ind]]     ### format: {var1:[[ts, ind], ...], var2:[[ts, ind], ...]}
+
+            var_timestamps += [(p, var_timelist)]   ### in the format (trace_path, {var1:[[ts, ind], ...], var2:[[ts, ind], ...})
+        return var_timestamps
+    
+    elif not df.empty and config != None:
         var_timelist = defaultdict(list)
-        # for var_name in _var_list:
-        #     print(var_name)
-        for ind, (t, ts) in enumerate(trace):
-            #print(t,ts)
+        for ind, df_row in enumerate(df.itertuples()):
+            # print('in utils:', ind, 'time:', df_row[1], 'trace', df_row[2])
+            t = df_row[2]  ### trace
+            ts = df_row[1]   ### time
             var_timelist[t] += [[ts, ind]]     ### format: {var1:[[ts, ind], ...], var2:[[ts, ind], ...]}
 
-        var_timestamps += [(p, var_timelist)]   ### in the format (trace_path, {var1:[[ts, ind], ...], var2:[[ts, ind], ...})
-
-    return var_timestamps
+        var_timestamps += [(config, var_timelist)]   ### in the format (trace_path, {var1:[[ts, ind], ...], var2:[[ts, ind], ...})
+        return var_timestamps
 
 
 def preprocess_variable_plotting(var_timestamps, var_list, from_number, trace_number=0):
@@ -568,21 +580,25 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
     '''
     This function plots the execution intervals for each variable
     to_plot: list of variables to plot -> list ; output of preprocess_variable_plotting()
+
+    return:
+    fig_list: list of plotly figure objects -> list
     '''
-    CODE, BEHAVIOUR, THREAD, VER = get_config()
+    # CODE, BEHAVIOUR, THREAD, VER = get_config()
     ### name represents the name of respective variable with which file will be saved
+    fig_list = []    ### plotly figure objects to plot later
     for (name, log_names, xy_data) in to_plot:
         ### path to save the plots
         to_write_name = name.replace('trace_data', 'exe plots')
         file_name = os.path.basename(to_write_name)
-        file_name = f'{THREAD}_version{VER}_{BEHAVIOUR}_{file_name}'
+        # file_name = f'{THREAD}_version{VER}_{BEHAVIOUR}_{file_name}'
         dir_name = os.path.dirname(to_write_name)
         to_write_name = os.path.join(dir_name, file_name)
         #print(to_write_name)
         isPath = os.path.exists(os.path.dirname(to_write_name)) ### check if the path exists
         ### create the folder if it does not exist
-        if not isPath:
-            os.makedirs(os.path.dirname(to_write_name))
+        # if not isPath:
+        #     os.makedirs(os.path.dirname(to_write_name))
 
         
         ########## make data frame to be able to plot ################
@@ -681,9 +697,11 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
                 showlegend=True,
                 )
 
-            fig.show()
+            # fig.show()
+            fig_list += [fig]
 
-            # break
+    return fig_list
+
 
 
 def write_to_csv(data, name):
