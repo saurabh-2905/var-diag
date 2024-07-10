@@ -55,12 +55,6 @@ engine = create_engine(database_url, echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
-# Load the data from the SQLite database into a DataFrame
-events_query = session.query(Event).all()
-events_data = [{'time': e.timestamp, 'trace': e.name,'config_id': e.file_number} for e in events_query]
-events_df = pd.DataFrame(events_data)
-
 config_query = session.query(File_config).all()
 config_data = [{'id': c.id, 'code_base': c.code_base, 'version': c.version, 'behaviour': c.behaviour, 'trial_num': c.trial_num} for c in config_query]
 config_df = pd.DataFrame(config_data)
@@ -121,10 +115,15 @@ app.layout = html.Div([
     [Input('config-dropdown', 'value'), Input('range-slider', 'value')]
 )
 def update_graph(selected_config_id, selected_range):
-    ### Filter the data based on the selected configuration and date range
-    filtered_df = events_df[(events_df['config_id'] == selected_config_id)]
+    session = Session()
+    events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
+    # print('events_query:', len(events_query))
+    events_data = [{'time': e.timestamp, 'trace': e.name,'config_id': e.file_number} for e in events_query]
+    events_df = pd.DataFrame(events_data)
+    session.close()
+
     ### get in format required for plotting: [time, trace]
-    filtered_df = filtered_df[['time', 'trace']]
+    filtered_df = events_df[['time', 'trace']]
     df_length = filtered_df.shape[0]
     start_index = int(selected_range[0] * df_length / 100)
     end_index = int(selected_range[1] * df_length / 100)
