@@ -16,6 +16,8 @@ import plotly.express as px
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
+
 
 # Define the base for the declarative model
 Base = declarative_base()
@@ -91,11 +93,13 @@ var_list = [from_number[key] for key in sorted_keys]   ### get the variable list
 # print(var_list)
 
 # Initialize the Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # Define the layout of the app
 app.layout = html.Div([
     html.H1("Event Data Dashboard"),
+    html.Br(),
+    html.H4("Select Experiment Config.:"),
     dcc.Dropdown(
         id='config-dropdown',
         options=[{'label': f"{row['code_base']} {row['version']} {row['behaviour']} {row['trial_num']}", 'value': row['id']} for _, row in config_df.iterrows()],
@@ -103,19 +107,39 @@ app.layout = html.Div([
         clearable=False
         ),
     html.Br(),
-    html.H6("Select Event Trace Range to Display:"),
-    dcc.RangeSlider(0, 100, 1, value=[0,20], id='range-slider'),
+
+    html.H4("Select Range (in percentage of total len):"),
+    dcc.RangeSlider(0, 100, 1, value=[0,10], id='range-slider'),
+
+    ### tabs for event trace and exe interval
+    dbc.Tabs(
+            [
+                dbc.Tab(label="Event Trace", tab_id="event_trace", ),
+                dbc.Tab(label="Exe. Interval", tab_id="exe_interval"),
+            ],
+            id="tabs",
+            active_tab="event_trace",
+        ),
+    ### loading spinner for tabs
+    dbc.Spinner(
+            [
+                dcc.Store(id="store"),
+                html.Div(id="tab-content", className="p-1"),
+            ],
+            delay_show=100,
+        ),
+
     html.Br(),
-    dcc.Loading(
-            [dcc.Graph(id='time-series-plot')],
-            overlay_style={"visibility":"visible", "filter": "blur(2px)"},
-            type="circle",)
+    # dcc.Loading(
+    #         [dcc.Graph(id='time-series-plot')],
+    #         overlay_style={"visibility":"visible", "filter": "blur(2px)"},
+    #         type="circle",)
     
 ])
 
 # Define the callback to update the graph
 @app.callback(
-    Output('time-series-plot', 'figure'),
+    Output('store', 'data'),
     [Input('config-dropdown', 'value'), Input('range-slider', 'value')]
 )
 def update_graph(selected_config_id, selected_range):
@@ -136,8 +160,36 @@ def update_graph(selected_config_id, selected_range):
     selected_df = filtered_df.iloc[start_index:end_index]
     # print('selected_df:', selected_df)
     # print('selected_df shape:', selected_df.shape)
-    fig = plot_single_trace(selected_df, sorted_keys, with_time=False, is_xticks=True)
-    return fig
+    return {'selected_df': selected_df.to_json()}
+    
+
+
+@app.callback(
+    Output("tab-content", "children"),
+    [Input("tabs", "active_tab"), Input("store", "data")],
+)
+def render_tab_content(active_tab, data):
+    """
+    This callback takes the 'active_tab' property as input, as well as the
+    stored graphs, and renders the tab content depending on what the value of
+    'active_tab' is.
+    """
+    print('active_tab:', active_tab)
+    if active_tab and data is not None:
+        if active_tab == "event_trace":
+            selected_df = pd.read_json(data['selected_df'])
+            print('selected_df:', selected_df)
+            fig = plot_single_trace(selected_df , sorted_keys, with_time=False, is_xticks=True)
+            return dcc.Graph(figure=fig)
+        elif active_tab == "exe_interval":
+            return dbc.Row(
+                [
+                    dbc.Col('No Data1'),
+                    dbc.Col('No Data2'),
+                ]
+            )
+    return "No tab selected"
+
 
 # Run the app
 if __name__ == '__main__':
