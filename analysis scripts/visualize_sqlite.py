@@ -126,7 +126,6 @@ app.layout = html.Div([
                 dcc.Store(id="store"),
                 html.Div(id="tab-content", className="p-1"),
             ],
-            delay_show=100,
         ),
 
     html.Br(),
@@ -184,8 +183,8 @@ def render_tab_content(active_tab, data):
         elif active_tab == "exe_interval":
             return dbc.Row(
                 [
-                    dbc.Col('No Data1'),
-                    dbc.Col('No Data2'),
+                    dbc.Row('No Data1'),
+                    dbc.Row('No Data2'),
                 ]
             )
     return "No tab selected"
