@@ -242,10 +242,11 @@ def plot_single_trace(df,
     fig = go.Figure()
 
     df_col = df.columns ### df_col = ['time', 'tracename']
+    # print('df:', list(df.index))
 
     if with_time == False:
         fig.add_trace(
-                    go.Scatter(y=list(df[df_col[1]]), name=df_col[1], mode='markers', marker=dict(size=10, color='midnightblue')),   ### equivalent to: y=list(df['trace1'])
+                    go.Scatter(x=df.index, y=list(df[df_col[1]]), name=df_col[1], mode='markers', marker=dict(size=10, color='midnightblue')),   ### equivalent to: y=list(df['trace1'])
                     )
     else:
         fig.add_trace(
@@ -373,14 +374,15 @@ def plot_single_trace(df,
 
     ### generate x ticks with timestamp and index num  
     x_data = df[df_col[0]]
+    print('x_data:', x_data)
     #get index of first element of x_data
     start_index = x_data.index[0]  
     end_index = x_data.index[-1]  
     # print('x_data:', x_data)
-    # print('start_index:', start_index, 'end_index:', end_index)
+    print('start_index:', start_index, 'end_index:', end_index)
     if is_xticks == True and with_time == False:
         x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
-        x_tickvals = [k for k in range(0,len(x_data),10)]
+        x_tickvals = [k for k in range(start_index,end_index,10)]
     elif is_xticks == True and with_time == True:
         x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
         x_tickvals = [x_data[k] for k in range(start_index,end_index,10)]
