@@ -91,7 +91,16 @@ app.layout = html.Div([
     html.Br(),
 
     html.H4("Select Range (Event Trace):"),
-    dcc.RangeSlider(0, 100, 1, value=[0,10], id='range-slider'),
+    dcc.RangeSlider(0, 100, 1, 
+                    value=[0,10], 
+                    marks=None, 
+                    pushable=10,
+                    tooltip={
+                        "placement": "bottom",
+                        "always_visible": True,
+                        "style": {"color": "LightSteelBlue", "fontSize": "16px"},
+                    },
+                    id='range-slider'),
 
     html.Br(),
 
@@ -146,6 +155,7 @@ def update_graph(selected_config_id, selected_range):
     # print('CODE:', CODE, 'VERSION:', VERSION, 'BEHAVIOUR:', BEHAVIOUR, 'TRIAL:', TRIAL)
 
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
+    label_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/labels/trial{TRIAL}_labels.json']
     # print('var_list_path_ET', varlist_path)
 
     ############# check varlist is consistent ############
@@ -163,12 +173,17 @@ def update_graph(selected_config_id, selected_range):
     var_list = [from_number[key] for key in sorted_keys]   ### get the variable list
     # print(var_list)
 
+    ############# get the selected range ###############
     # print('selected range:', selected_range)
     # print('calculated indices:', start_index, end_index)
     selected_df = filtered_df.iloc[start_index:end_index]
     # print('selected_df:', selected_df)
     # print('selected_df shape:', selected_df.shape)
-    fig = plot_single_trace(selected_df, sorted_keys, with_time=False, is_xticks=True)
+
+    ############## get ground truths ####################
+
+
+    fig = plot_single_trace(selected_df, var_list, with_time=False, is_xticks=True)
     return fig
 
 
