@@ -176,3 +176,5 @@ scientific practise/
 *.json
 *tokens*
 iot-api-apps/
+Sensorboard_2021*
+events.db
