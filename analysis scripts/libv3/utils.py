@@ -510,8 +510,9 @@ def get_var_timestamps(paths_traces=None, df=None, config=None):
     
     elif not df.empty and config != None:
         var_timelist = defaultdict(list)
-        for ind, df_row in enumerate(df.itertuples()):
+        for df_row in df.itertuples():
             # print('in utils:', ind, 'time:', df_row[1], 'trace', df_row[2])
+            ind = df_row[0]   ### index
             t = df_row[2]  ### trace
             ts = df_row[1]   ### time
             var_timelist[t] += [[ts, ind]]     ### format: {var1:[[ts, ind], ...], var2:[[ts, ind], ...]}
