@@ -18,6 +18,34 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
+def prepare_labels(paths_label):
+    ### count and prepare labels to plot
+    '''
+    labels are of format [index1, index2, timestamp1, timestamp2, class]
+
+    path_label: list of paths to label files    -> list
+
+    return:
+    toplot_gt: list of labels to plot           -> list
+    '''
+    class_count = defaultdict(int)
+    for i, path in enumerate(paths_label):
+        label_content = prepare_gt(path)
+        ind, ts, cls = label_content
+        # print(ind, ts, cls)
+        for c in cls:
+            class_count[c]+=1
+            
+        print(path)
+        toplot_gt = label_content
+
+        print(os.path.split(path)[-1], class_count)
+
+        # break
+    for key, val in class_count.items():
+        print(key, val)
+    
+    return toplot_gt
 
 # Define the base for the declarative model
 Base = declarative_base()
@@ -77,7 +105,7 @@ session.close()
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # Define the layout of the app
-app.layout = html.Div([
+app.layout = dbc.Container([
     html.H1("Event Data Dashboard"),
     html.H4("Select Experiment Config:"),
 
@@ -101,6 +129,15 @@ app.layout = html.Div([
                         "style": {"color": "LightSteelBlue", "fontSize": "16px"},
                     },
                     id='range-slider'),
+
+    html.Br(),
+
+    dcc.Checklist(
+        id ='addons',
+        options = ['with_time', 'x_ticks', 'labels', 'thresholds', 'predictions'],
+        value = ['x_ticks']
+        # inline=True
+    ),
 
     html.Br(),
 
@@ -128,9 +165,9 @@ app.layout = html.Div([
 # Define the callback to update the graph
 @app.callback(
     Output('time-series-plot', 'figure'),
-    [Input('config-dropdown', 'value'), Input('range-slider', 'value')]
+    [Input('config-dropdown', 'value'), Input('range-slider', 'value'), Input('addons', 'value')]
 )
-def update_graph(selected_config_id, selected_range):
+def update_graph(selected_config_id, selected_range, addons_flags):
     session = Session()
     events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
     # print('events_query:', len(events_query))
@@ -155,7 +192,7 @@ def update_graph(selected_config_id, selected_range):
     # print('CODE:', CODE, 'VERSION:', VERSION, 'BEHAVIOUR:', BEHAVIOUR, 'TRIAL:', TRIAL)
 
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
-    label_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/labels/trial{TRIAL}_labels.json']
+    label_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/labels/trace_trial{TRIAL}_labels.json']
     # print('var_list_path_ET', varlist_path)
 
     ############# check varlist is consistent ############
@@ -181,18 +218,36 @@ def update_graph(selected_config_id, selected_range):
     # print('selected_df shape:', selected_df.shape)
 
     ############## get ground truths ####################
+    # print('adding labels:', addons_flags)
+    labels = None
+    plot_time = False
+    plot_x_ticks = False
+    if addons_flags is not None:
+        if 'labels' in addons_flags:
+            ### check if label file exists
+            if os.path.exists(label_path[0]):
+                labels = prepare_labels(label_path)   ### need input as a list
+                # labels = labels[start_index:end_index]
+                # print('labels:', labels)
+            else:
+                print('Label file does not exist')
 
+        if 'with_time' in addons_flags:
+            plot_time = True
 
-    fig = plot_single_trace(selected_df, var_list, with_time=False, is_xticks=True)
+        if 'x_ticks' in addons_flags:
+            plot_x_ticks = True
+
+    fig = plot_single_trace(selected_df, var_list, with_time=plot_time, is_xticks=plot_x_ticks, ground_truths=labels)
     return fig
 
 
 # Define the callback to update the execution interval graph
 @app.callback(
     Output('tab-content', 'children'),
-    [Input('config-dropdown', 'value'), Input('range-slider', 'value')]
+    [Input('config-dropdown', 'value'), Input('range-slider', 'value'), Input('addons', 'value')]
 )
-def update_exeint(selected_config_id, selected_range):
+def update_exeint(selected_config_id, selected_range, addons_flags):
     session = Session()
     events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
     # print('events_query:', len(events_query))
