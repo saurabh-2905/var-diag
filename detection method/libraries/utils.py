@@ -11,15 +11,16 @@ from io import StringIO
 
 
 #### config for plotting #####
-FONTSIZE = 20
-PLOTWIDTH = 1200
-PLOTHEIGHT = 800
+FONTSIZE = 15
+# PLOTWIDTH = 2000
+PLOTHEIGHT = 1500
 
 
 
-def get_config():
+def get_config(file_name='theft_protection_config'):
     '''
     read the configuration file and extract the values
+    file_name: path to the configuration file -> str without extension
     return:
     CODE: code name -> str
     BEHAVIOUR: behaviour name -> str
@@ -28,7 +29,7 @@ def get_config():
     '''
 
     # Read the file
-    with open('libv3/exp_config.txt', 'r') as f:
+    with open(f'libv3/{file_name}.txt', 'r') as f:
         config_string = '[dummy_section]\n' + f.read()
 
     # Parse the configuration
@@ -112,7 +113,7 @@ def read_json(path: str):
 
 def read_traces(trace_path):
     '''
-    read the trace files (json) and extract variable names
+    read the trace files and extract variable names
     trace_path: path to the trace files -> str
 
     return:
@@ -121,6 +122,7 @@ def read_traces(trace_path):
     with open(trace_path, 'r') as f:
         data = json.load(f)
     return data
+
 
 def load_sample(file_path):
     '''
@@ -223,24 +225,28 @@ def plot_single_trace(df,
                       with_time=False, 
                       ground_truths=None, 
                       is_xticks=False, 
-                      gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip'],
+                      gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt'],
                       detections=None,
                       dt_classlist=['detection'],
                       ):
     '''
     This function plots the traces with dataframe as input
     ground_truths: list of ground_truths -> list, format: ( list([start index, end index]), list([start timestamp, end timestamp]), list(class) )
+    
+    return:
+    fig: plotly figure -> go.Figure
     '''
-    gt_colour_list = ['lawngreen', 'blue', 'goldenrod'] ### 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    gt_colour_list = ['lawngreen', 'blue', 'goldenrod', 'teal'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
     dt_colour_list= ['red', 'purple', 'lightslategray',]
     # Create figure
     fig = go.Figure()
 
     df_col = df.columns ### df_col = ['time', 'tracename']
+    # print('df:', list(df.index))
 
     if with_time == False:
         fig.add_trace(
-                    go.Scatter(y=list(df[df_col[1]]), name=df_col[1], mode='markers', marker=dict(size=10, color='midnightblue')),   ### equivalent to: y=list(df['trace1'])
+                    go.Scatter(x=df.index, y=list(df[df_col[1]]), name=df_col[1], mode='markers', marker=dict(size=10, color='midnightblue')),   ### equivalent to: y=list(df['trace1'])
                     )
     else:
         fig.add_trace(
@@ -368,12 +374,18 @@ def plot_single_trace(df,
 
     ### generate x ticks with timestamp and index num  
     x_data = df[df_col[0]]
+    print('x_data:', x_data)
+    #get index of first element of x_data
+    start_index = x_data.index[0]  
+    end_index = x_data.index[-1]  
+    # print('x_data:', x_data)
+    print('start_index:', start_index, 'end_index:', end_index)
     if is_xticks == True and with_time == False:
-        x_ticks = [(i,x_data[i]) for i in range(0,len(x_data),10) ]
-        x_tickvals = [k for k in range(0,len(x_data),10)]
+        x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
+        x_tickvals = [k for k in range(start_index,end_index,10)]
     elif is_xticks == True and with_time == True:
-        x_ticks = [(i,x_data[i]) for i in range(0,len(x_data),10) ]
-        x_tickvals = [x_data[k] for k in range(0,len(x_data),10)]
+        x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
+        x_tickvals = [x_data[k] for k in range(start_index,end_index,10)]
     elif is_xticks == False:
         x_ticks = None
         x_tickvals = None
@@ -400,7 +412,7 @@ def plot_single_trace(df,
             color='black',
         ),
         autosize=True,
-        width=PLOTWIDTH,
+        # width=PLOTWIDTH,
         height=PLOTHEIGHT,
         plot_bgcolor='rgba(0,0,0,0)',
         
@@ -418,7 +430,8 @@ def plot_single_trace(df,
         ticks='outside',
         showline=True,
         linecolor='black',
-        gridcolor='lightgrey'
+        gridcolor='lightgrey',
+        autorange=True,
     )
 
     # style all the traces
@@ -431,8 +444,8 @@ def plot_single_trace(df,
         
     )
 
-    fig.show()
-    # break
+    # fig.show()
+    return fig
 
 def prepare_gt(path):
     '''
@@ -468,10 +481,11 @@ def index2timestamp(df, index):
     return df['time'][index]
 
 
-def get_var_timestamps(paths_traces):
+def get_var_timestamps(paths_traces=None, df=None, config=None):
     '''
     This function takes the trace paths and extracts the variable timestamps
     paths_traces: list of paths to the trace files -> list(str)
+    df: data frame -> pd.DataFrame. in format: [time, trace]
     
     return:
     var_timestamps: list of variable timestamps -> list(dict)'''
@@ -479,20 +493,32 @@ def get_var_timestamps(paths_traces):
 
     var_timestamps = []     ### [log1, log,2, ... ] --> [{var1:[], var2:[], ....}, {}  ]
 
-    for p in paths_traces:
-        #print(p,w)
-        trace = read_traces(p)
-        #print(trace)
+    if paths_traces:
+        for p in paths_traces:
+            #print(p,w)
+            trace = read_traces(p)
+            #print(trace)
+            var_timelist = defaultdict(list)
+            # for var_name in _var_list:
+            #     print(var_name)
+            for ind, (t, ts) in enumerate(trace):
+                #print(t,ts)
+                var_timelist[t] += [[ts, ind]]     ### format: {var1:[[ts, ind], ...], var2:[[ts, ind], ...]}
+
+            var_timestamps += [(p, var_timelist)]   ### in the format (trace_path, {var1:[[ts, ind], ...], var2:[[ts, ind], ...})
+        return var_timestamps
+    
+    elif not df.empty and config != None:
         var_timelist = defaultdict(list)
-        # for var_name in _var_list:
-        #     print(var_name)
-        for ind, (t, ts) in enumerate(trace):
-            #print(t,ts)
+        for df_row in df.itertuples():
+            # print('in utils:', ind, 'time:', df_row[1], 'trace', df_row[2])
+            ind = df_row[0]   ### index
+            t = df_row[2]  ### trace
+            ts = df_row[1]   ### time
             var_timelist[t] += [[ts, ind]]     ### format: {var1:[[ts, ind], ...], var2:[[ts, ind], ...]}
 
-        var_timestamps += [(p, var_timelist)]   ### in the format (trace_path, {var1:[[ts, ind], ...], var2:[[ts, ind], ...})
-
-    return var_timestamps
+        var_timestamps += [(config, var_timelist)]   ### in the format (trace_path, {var1:[[ts, ind], ...], var2:[[ts, ind], ...})
+        return var_timestamps
 
 
 def preprocess_variable_plotting(var_timestamps, var_list, from_number, trace_number=0):
@@ -557,21 +583,25 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
     '''
     This function plots the execution intervals for each variable
     to_plot: list of variables to plot -> list ; output of preprocess_variable_plotting()
+
+    return:
+    fig_list: list of plotly figure objects -> list
     '''
-    CODE, BEHAVIOUR, THREAD, VER = get_config()
+    # CODE, BEHAVIOUR, THREAD, VER = get_config()
     ### name represents the name of respective variable with which file will be saved
+    fig_list = []    ### plotly figure objects to plot later
     for (name, log_names, xy_data) in to_plot:
         ### path to save the plots
         to_write_name = name.replace('trace_data', 'exe plots')
         file_name = os.path.basename(to_write_name)
-        file_name = f'{THREAD}_version{VER}_{BEHAVIOUR}_{file_name}'
+        # file_name = f'{THREAD}_version{VER}_{BEHAVIOUR}_{file_name}'
         dir_name = os.path.dirname(to_write_name)
         to_write_name = os.path.join(dir_name, file_name)
         #print(to_write_name)
         isPath = os.path.exists(os.path.dirname(to_write_name)) ### check if the path exists
         ### create the folder if it does not exist
-        if not isPath:
-            os.makedirs(os.path.dirname(to_write_name))
+        # if not isPath:
+        #     os.makedirs(os.path.dirname(to_write_name))
 
         
         ########## make data frame to be able to plot ################
@@ -608,10 +638,13 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
                 _y_all.extend(y)
                 legend_lab.append(l)
                 
-                # plt.plot(x, y, ls=line_style[num%4], marker=markers[num%11])
                 fig.add_trace(
                     go.Scatter(x=ind, y=y, name=l, mode='markers', marker=dict(size=10, color='midnightblue'))
                 )
+
+                # fig.add_trace(
+                #     go.Scatter(y=y, name=l, mode='markers', marker=dict(size=10, color='midnightblue'))
+                # )
                 
                 # Add range slider, title, yticks, axes labels
                 fig.update_layout(
@@ -667,25 +700,11 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
                 showlegend=True,
                 )
 
-            fig.show()
+            # fig.show()
+            fig_list += [fig]
 
-            # break
+    return fig_list
 
-def generate_instances(sample_data, window_size=100, sliding_interval=1):
-    '''
-    generate instances from the sample data (for novelty methods)
-    sample_data: list of samples -> list
-    window_size: size of the window -> int
-    sliding_interval: sliding interval -> int
-
-    return:
-    instances: list of instances -> list
-    '''
-    instances = []
-    for i in range(0, len(sample_data), sliding_interval):
-        if i+window_size <= len(sample_data):
-            instances.append(sample_data[i:i+window_size])
-    return instances
 
 
 def write_to_csv(data, name):
