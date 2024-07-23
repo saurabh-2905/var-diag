@@ -32,12 +32,14 @@ class: 0 -> normal, 1 -> comm anomaly, 2 -> sensor anomaly, 3 -> bitflip anomaly
 import json
 import tkinter as tk
 from tkinter import messagebox
+import os
 
 # Create root window
 root = tk.Tk()
 
 # To map the index to the timestamp
 timestamps = []
+dup_file = 0
 
 # Get trace file to calculate timestamps from index
 def generate_mapper():
@@ -143,32 +145,47 @@ save_label_button.pack()
 
 # Function to save data
 def save_data():
-    # Get metadata
-    metadata = {field: entry.get() for field, entry in metadata_entries.items()}
+    global dup_file
 
-    # Create data
-    data = {
-        'metadata': metadata,
-        'labels': labels
-    }
+    answer = messagebox.askyesno(title='confirmation',
+                    message='Are you sure that you want to save?')
+    
+    if answer:
+        # Get metadata
+        metadata = {field: entry.get() for field, entry in metadata_entries.items()}
 
-    # Write data to JSON file
-    write_path = metadata_entries['path'].get().split('/')[-1]
-    with open(f'{write_path}_label.json', 'w') as f:
-        json.dump(data, f, indent=4)
+        # Create data
+        data = {
+            'metadata': metadata,
+            'labels': labels
+        }
 
-    # Show success message
-    messagebox.showinfo('Success', f'Data saved to {write_path}_labels.json')
+        # Write data to JSON file
+        write_path = metadata_entries['path'].get().split('/')[-1]
+        ### check if files already exists
+        if os.path.exists(f'{write_path}_labels.json'):
+            dup_file += 1
+            with open(f'{write_path}_labels_{dup_file}.json', 'w') as f:
+                json.dump(data, f, indent=4)
+            # Show success message
+            messagebox.showinfo('Success', f'{write_path}_labels_{dup_file}.json')
+        else:
+            with open(f'{write_path}_labels.json', 'w') as f:
+                json.dump(data, f, indent=4)
+            # Show success message
+            messagebox.showinfo('Success', f'{write_path}_labels.json')
 
-    # Clear all entries
-    for field, entry in label_entries.items():
-        entry.delete(0, 'end')
+        # Clear all entries
+        for field, entry in label_entries.items():
+            entry.delete(0, 'end')
 
-    for field, entry in metadata_entries.items():
-        entry.delete(0, 'end')
+        for field, entry in metadata_entries.items():
+            entry.delete(0, 'end')
 
-    metadata = {}
-    labels.clear()
+        metadata = {}
+        labels.clear()
+    else:
+        pass
 # Create save button
 save_button = tk.Button(root, text='Save data', command=save_data)
 save_button.pack()
