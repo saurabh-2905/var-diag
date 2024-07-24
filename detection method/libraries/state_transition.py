@@ -23,6 +23,9 @@ class StateTransition:
             elif sample_path.find('.json') != -1:
                 sample_data = read_traces(sample_path)
                 print(sample_path)
+            else:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
 
             for event1, event2 in zip(sample_data[0:-1], sample_data[1:]):
                 # print(event1,event2)
