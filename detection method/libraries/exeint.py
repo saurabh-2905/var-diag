@@ -125,7 +125,16 @@ class exeInt:
         filewise_exe_list = {}   ### {file1: {var1: [1,2,3,4,5,6,7,8,9,10], var2: [1,2,3,4,5,6,7,8,9,10], ....}, file2: {var1: [1,2,3,4,5,6,7,8,9,10], var2: [1,2,3,4,5,6,7,8,9,10], ....}, ....}
         for sample_path in train_data_path:
             print(sample_path)
-            sample_data = read_traces(sample_path)
+            # sample_data = read_traces(sample_path)
+            if sample_path.find('.npy') != -1:
+                sample_data = load_sample(sample_path)
+                print(sample_path)
+            elif sample_path.find('.json') != -1:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
+            else:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
             filename = sample_path.split('/')[-1].split('.')[0]
             # print(sample_data)
             ### collect timestamps for all variables
