@@ -47,6 +47,42 @@ def prepare_labels(paths_label):
     
     return toplot_gt
 
+def prepare_detections(paths_detection, timestamps):
+    '''
+    detections are of format [(state, state), (timestamp1, timestamp2), filename]
+
+    path_detection: list of paths to detection files    -> list of str, len = 1
+    timestamps: list of timestamps                      -> list of int
+
+    return:
+    plot_val: list of indices of detections                -> list of tuple
+    plot_x_ticks: list of timestamps to plot x_ticks               -> list of tuple
+    plot_class: list of class to plot                    -> list of int
+
+    '''
+    detections = read_traces(paths_detection[0])
+    plot_val = []
+    plot_x_ticks = []
+    plot_class = []
+    for det in detections:
+        # print(det)
+        det_ts1, det_ts2 = det[1]
+        # print(det_ts1, det_ts2)
+
+        det_ind1_pre = [ abs(t-det_ts1) for t in timestamps]
+        det_ind1 = det_ind1_pre.index(min(det_ind1_pre))
+
+        det_ind2_pre = [ abs(t-det_ts2) for t in timestamps]
+        det_ind2 = det_ind2_pre.index(min(det_ind2_pre))
+        # print(det_ind1, det_ind2)
+        # print(timestamps[det_ind1], timestamps[det_ind2])
+
+        plot_val += [(det_ind1, det_ind2)]
+        plot_x_ticks += [(timestamps[det_ind1], timestamps[det_ind2])]
+        plot_class += [0]
+
+    return [plot_val, plot_x_ticks, plot_class]
+
 # Define the base for the declarative model
 Base = declarative_base()
 
@@ -134,10 +170,18 @@ app.layout = dbc.Container([
 
     dcc.Checklist(
         id ='addons',
-        options = ['with_time', 'x_ticks', 'labels', 'thresholds', 'predictions'],
+        options = ['with_time', 'x_ticks', 'labels', 'thresholds'],
         value = ['x_ticks']
         # inline=True
     ),
+
+    html.Br(),
+    html.H4("Select Detection Model to Vizualize Preditions:"),
+    dcc.Dropdown(['st_predictions', 'ei_predictions'], None, id='detection_model'),
+
+    html.Br(),
+    html.H4("Select Subset of Predictions:"),
+    dcc.Dropdown(['all_predict', 'tp_predict', 'fp_predict'], 'all_predict', id='detection_subset'),
 
     html.Br(),
 
@@ -165,9 +209,13 @@ app.layout = dbc.Container([
 # Define the callback to update the graph
 @app.callback(
     Output('time-series-plot', 'figure'),
-    [Input('config-dropdown', 'value'), Input('range-slider', 'value'), Input('addons', 'value')]
+    [Input('config-dropdown', 'value'), 
+     Input('range-slider', 'value'), 
+     Input('addons', 'value'),
+     Input('detection_model', 'value'),
+     Input('detection_subset', 'value')]
 )
-def update_graph(selected_config_id, selected_range, addons_flags):
+def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset):
     session = Session()
     events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
     # print('events_query:', len(events_query))
@@ -177,6 +225,8 @@ def update_graph(selected_config_id, selected_range, addons_flags):
 
     ### get in format required for plotting: [time, trace]
     filtered_df = events_df[['time', 'trace']]
+    # print('filtered_df time:', filtered_df['time'])
+    timestamps = filtered_df['time']
     df_length = filtered_df.shape[0]
     start_index = int(selected_range[0] * df_length / 100)
     end_index = int(selected_range[1] * df_length / 100)
@@ -193,6 +243,14 @@ def update_graph(selected_config_id, selected_range, addons_flags):
 
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
     label_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/labels/trace_trial{TRIAL}_labels.json']
+    
+    predictions_path_ei = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_ei_detections.json']
+    predictions_path_ei_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_tp_ei_detections.json']
+    predictions_path_ei_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_fp_ei_detections.json']
+    
+    predictions_path_st = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_st_detections.json']
+    predictions_path_st_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_tp_st_detections.json']
+    predictions_path_st_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_fp_st_detections.json']
     # print('var_list_path_ET', varlist_path)
 
     ############# check varlist is consistent ############
@@ -220,6 +278,7 @@ def update_graph(selected_config_id, selected_range, addons_flags):
     ############## get ground truths ####################
     # print('adding labels:', addons_flags)
     labels = None
+    predictions = None
     plot_time = False
     plot_x_ticks = False
     if addons_flags is not None:
@@ -238,7 +297,48 @@ def update_graph(selected_config_id, selected_range, addons_flags):
         if 'x_ticks' in addons_flags:
             plot_x_ticks = True
 
-    fig = plot_single_trace(selected_df, var_list, with_time=plot_time, is_xticks=plot_x_ticks, ground_truths=labels)
+        ############## get predictions ####################
+    if detection_model is not None:
+        if 'ei_predictions' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_ei[0]):
+                    predictions = prepare_detections(predictions_path_ei, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_ei_tp[0]):
+                    predictions = prepare_detections(predictions_path_ei_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_ei_fp[0]):
+                    predictions = prepare_detections(predictions_path_ei_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+        elif 'st_predictions' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_st[0]):
+                    predictions = prepare_detections(predictions_path_st, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_st_tp[0]):
+                    predictions = prepare_detections(predictions_path_st_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_st_fp[0]):
+                    predictions = prepare_detections(predictions_path_st_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+
+    fig = plot_single_trace(selected_df, 
+                            var_list, 
+                            with_time=plot_time, 
+                            is_xticks=plot_x_ticks, 
+                            ground_truths=labels,
+                            detections=predictions,
+                            )
     return fig
 
 
@@ -275,6 +375,9 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
 
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
     # print('var_list_path_ei', varlist_path)
+
+    # if 'x_ticks' in addons_flags:
+    #         plot_x_ticks = True
 
     ############# check varlist is consistent ############
     ############# only for version 3 ######################
