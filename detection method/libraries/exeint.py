@@ -162,7 +162,23 @@ class exeInt:
                     else:
                         exe_list[key].append(exe_time)
 
+                # ### remove the variable if it has less than 3 execution intervals to avoid problem with lof
+                # for k in intervals.keys():
+                #     cont_chk = intervals[k]
+                #     if len(cont_chk) <= 3:  
+                #         del intervals[k]
+
             filewise_exe_list[filename] = intervals
+        
+        ### remove the variable if it has less than 3 execution intervals to avoid problem with lof
+        for k in timestamps.keys():
+            if k in exe_list.keys():
+                cont_chk = exe_list[k]
+                if len(cont_chk) <= 3:  
+                    del exe_list[k]
+                    exe_list[k] = [0.0, 0.0, 0.0]    ### add 0.0 to avoid problem with lof
+            else:
+                exe_list[k] = [0.0, 0.0, 0.0]
 
         return exe_list, filewise_exe_list
 
