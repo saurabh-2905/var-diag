@@ -191,7 +191,7 @@ class exeInt:
                 var_tracking[var].append(ts)
 
             ### calculate exe interval
-            if len(var_tracking[var]) > 1:
+            if len(var_tracking[var]) > 3:
                 exe_time = var_tracking[var][-1] - var_tracking[var][-2]
                 ### convert timestampt from miliseconds to seconds, and only consdider 1 decimal point. 
                 exe_time = round(exe_time/1000, 1)
