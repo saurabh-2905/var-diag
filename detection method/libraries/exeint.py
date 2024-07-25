@@ -224,6 +224,10 @@ class exeInt:
                 exe_time = round(exe_time/1000, 1)
 
                 if thresholds != None:
+                    ### check if var was present in the training data
+                    if var not in thresholds.keys():
+                        thresholds[var] = [0.0, 0.1]
+                        
                     ### check if exe_time is an outlier
                     if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
                         print(f'Anomaly detected for {var} in {filename} at {i}th event')
