@@ -138,22 +138,27 @@ def is_consistent(varlist_paths: list):
     varlist_paths: list of paths to the varlist files -> list
 
     return:
-    dict of variables to map to integer -> dict
+    True, varlist -> bool, dict
     '''
+    
     varlist = read_json(varlist_paths[0])
+
+    if len(varlist_paths) == 1:
+        return True, varlist
     # print(varlist)
-    if len(varlist_paths) > 1:
-        for ind, varlist_p in enumerate(varlist_paths[1:]):
-            varlist_ = read_json(varlist_p)
-            if varlist != varlist_:
-                print(f'varlist {ind+1} is not consistent varlist 0')
-                return False
-            else:
-                print(f'varlist {ind+1} is consistent with varlist 0')
-                print(varlist, varlist_)
-                return varlist
+    inconsistent = []
+    for ind, varlist_p in enumerate(varlist_paths[1:]):
+        varlist_ = read_json(varlist_p)
+        if varlist != varlist_:
+            print(f'varlist {ind+1} is not consistent varlist 0')
+            inconsistent += [varlist_p]
+        else:
+            print(f'varlist {ind+1} is consistent with varlist 0')
+    
+    if inconsistent != []:
+        return False, inconsistent
     else:
-        return varlist
+        return True, varlist
 
 
 def mapint2var(vartoint):
@@ -374,12 +379,12 @@ def plot_single_trace(df,
 
     ### generate x ticks with timestamp and index num  
     x_data = df[df_col[0]]
-    print('x_data:', x_data)
+    # print('x_data:', x_data)
     #get index of first element of x_data
     start_index = x_data.index[0]  
     end_index = x_data.index[-1]  
     # print('x_data:', x_data)
-    print('start_index:', start_index, 'end_index:', end_index)
+    # print('start_index:', start_index, 'end_index:', end_index)
     if is_xticks == True and with_time == False:
         x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
         x_tickvals = [k for k in range(start_index,end_index,10)]

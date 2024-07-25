@@ -256,11 +256,8 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     ############# check varlist is consistent ############
     ############# only for version 3 ######################
 
-    if VERSION == 3:
-        to_number = is_consistent(varlist_path)
-
-        if to_number != False:
-            from_number = mapint2var(to_number)
+    to_number = read_json(varlist_path[0])
+    from_number = mapint2var(to_number)
 
     ############ Get variable list ######################
     sorted_keys = list(from_number.keys())
@@ -382,11 +379,10 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     ############# check varlist is consistent ############
     ############# only for version 3 ######################
 
-    if VERSION == 3:
-        to_number = is_consistent(varlist_path)
+    to_number = read_json(varlist_path[0])
+    from_number = mapint2var(to_number)
+        
 
-        if to_number != False:
-            from_number = mapint2var(to_number)
 
     ############ Get variable list ######################
     sorted_keys = list(from_number.keys())
