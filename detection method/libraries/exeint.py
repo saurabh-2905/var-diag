@@ -76,7 +76,7 @@ class exeInt:
             out = dict()
             for val in prob.keys():
                 print('value:', val, 'prob:', prob[val])
-                if prob[val] > 0.0:    
+                if prob[val] > 0.00:    ### 0.009 based on mamba dataset, to avoid the starting exeinterval which is outlier
                     filtered_values[val] = prob[val]
                 else:
                     out[val] = prob[val]
@@ -226,14 +226,14 @@ class exeInt:
                 if thresholds != None:
                     ### check if var was present in the training data
                     if var not in thresholds.keys():
-                        thresholds[var] = [0.0, 0.1]
+                        thresholds[var] = [0.0, 3]
                         
                     ### check if exe_time is an outlier
                     if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
                         print(f'Anomaly detected for {var} in {filename} at {i}th event')
                         print(f'Execution interval: {exe_time}')
-                        # detected_anomalies += [[(var, var_tracking[var][-2]), (var, var_tracking[var][-1]), os.path.basename(sample_path)]]
                         detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                        # detected_anomalies += [[(var,0), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
                 
                 if lof_models != None:
                     ### check if exe_time is an outlier
