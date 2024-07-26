@@ -371,6 +371,8 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     # print('CODE:', CODE, 'VERSION:', VERSION, 'BEHAVIOUR:', BEHAVIOUR, 'TRIAL:', TRIAL)
 
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
+
+    threshold_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/faulty_data/thresholds.json']
     # print('var_list_path_ei', varlist_path)
 
     # if 'x_ticks' in addons_flags:
@@ -395,7 +397,16 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     to_plot = preprocess_variable_plotting(var_timestamps, var_list, from_number)  
     # print('to_plot:', to_plot)
 
-    plot_list = plot_execution_interval_single(to_plot, is_xticks=False)
+    ############ Get Thresholds ######################
+    thresholds = None
+    if addons_flags is not None:
+        if 'thresholds' in addons_flags:
+            if os.path.exists(threshold_path[0]):
+                thresholds = read_json(threshold_path[0])
+            else:
+                print('Threshold file does not exist')
+
+    plot_list = plot_execution_interval_single(to_plot, is_xticks=False, thresholds=thresholds)
     print('got plot_list')
     fig_list = []
     for fig in plot_list:

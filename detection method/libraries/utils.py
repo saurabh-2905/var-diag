@@ -110,6 +110,17 @@ def read_json(path: str):
         data = json.load(f)
     return data
 
+def save_json(data, path):
+    '''
+    save the data in json format
+    data: data to save -> dict
+    path: path to save the data -> str
+
+    return:
+    None
+    '''
+    with open(path, 'w') as f:
+        json.dump(data, f)
 
 def read_traces(trace_path):
     '''
@@ -321,9 +332,9 @@ def plot_single_trace(df,
     if detections != None:
         dt_class_list = dt_classlist
         ### sperate the content of detections
-        detections_values = detections[0]
-        detections_xticks = detections[1]
-        detections_class = detections[2]
+        detections_values = detections[0]   ### index values
+        detections_xticks = detections[1]   ### timestamp values
+        detections_class = detections[2]    ### class values
 
         for (start_ind, end_ind), (start_ts, end_ts), cls in zip(detections_values, detections_xticks, detections_class):
             ### check if time on x-axis
@@ -379,12 +390,12 @@ def plot_single_trace(df,
 
     ### generate x ticks with timestamp and index num  
     x_data = df[df_col[0]]
-    print('x_data:', x_data)
+    # print('x_data:', x_data)
     #get index of first element of x_data
     start_index = x_data.index[0]  
     end_index = x_data.index[-1]  
     # print('x_data:', x_data)
-    print('start_index:', start_index, 'end_index:', end_index)
+    # print('start_index:', start_index, 'end_index:', end_index)
     if is_xticks == True and with_time == False:
         x_ticks = [(i,x_data[i]) for i in range(start_index,end_index,10) ]
         x_tickvals = [k for k in range(start_index,end_index,10)]
@@ -584,7 +595,13 @@ def preprocess_variable_plotting(var_timestamps, var_list, from_number, trace_nu
     return to_plot
 
 
-def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
+def plot_execution_interval_single(to_plot, 
+                                    ground_truths=None, 
+                                    is_xticks=False, 
+                                    gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt'],
+                                    detections=None,
+                                    dt_classlist=['detection'],
+                                    thresholds=None):
     '''
     This function plots the execution intervals for each variable
     to_plot: list of variables to plot -> list ; output of preprocess_variable_plotting()
@@ -602,12 +619,7 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
         # file_name = f'{THREAD}_version{VER}_{BEHAVIOUR}_{file_name}'
         dir_name = os.path.dirname(to_write_name)
         to_write_name = os.path.join(dir_name, file_name)
-        #print(to_write_name)
-        isPath = os.path.exists(os.path.dirname(to_write_name)) ### check if the path exists
-        ### create the folder if it does not exist
-        # if not isPath:
-        #     os.makedirs(os.path.dirname(to_write_name))
-
+        var_name = os.path.basename(name)
         
         ########## make data frame to be able to plot ################
         df = dict()
@@ -653,7 +665,7 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
                 
                 # Add range slider, title, yticks, axes labels
                 fig.update_layout(
-                    title_text=f"Execution Interval for '{os.path.basename(name)}'",
+                    title_text=f"Execution Interval for '{var_name}'",
                     xaxis=dict(
                         title="Number of events",
                         rangeslider=dict(visible=True),
@@ -694,6 +706,51 @@ def plot_execution_interval_single(to_plot, anomalies=None, is_xticks=False):
                     gridcolor='lightgrey'
                 )
             
+                if thresholds != None:
+                    lower_th, upper_th = thresholds[var_name]
+                    lower_th *= 1000
+                    upper_th *= 1000
+                    print('plot fun:', var_name, lower_th, upper_th)
+
+                    #### select colour based on class
+                    fig.add_shape(type="rect", # specify the shape type "rect"
+                            # xref="x", # reference the x-axis
+                            # yref="paper", # reference the y-axis
+                            x0=ind[0], # the x-coordinate of the left side of the rectangle
+                            y0=lower_th, # the y-coordinate of the bottom of the rectangle
+                            x1=ind[-1], # the x-coordinate of the right side of the rectangle
+                            y1=upper_th, # the y-coordinate of the top of the rectangle
+                            opacity=0.3, # the opacity
+                            layer="below", # draw shape below traces
+                            line_width=0, # outline width
+                            fillcolor='LightSeaGreen', # the fill color
+                            )
+                    
+                    # Add dotted lines on the sides of the rectangle
+                    for y in [lower_th, upper_th]:
+                        fig.add_shape(type="line",
+                                # xref="x",
+                                # yref="paper",
+                                x0=ind[0],
+                                y0=y,
+                                x1=ind[-1],
+                                y1=y,
+                                line=dict(
+                                    color='LightSeaGreen',
+                                    width=2,
+                                    dash="dot",
+                                ),
+                            )
+                    ##### add legend for threshold based on colours/class
+                    fig.add_trace(go.Scatter(
+                        x=[None],  # these traces will not have any data points
+                        y=[None],
+                        mode='markers',
+                        marker=dict(size=10, color='LightSeaGreen'),
+                        showlegend=True,
+                        name='Threshold',
+                    ))
+
         if _y_all != []:
 
             # style all the traces
