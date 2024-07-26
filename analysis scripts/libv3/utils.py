@@ -610,6 +610,9 @@ def plot_execution_interval_single(to_plot,
     fig_list: list of plotly figure objects -> list
     '''
     # CODE, BEHAVIOUR, THREAD, VER = get_config()
+    gt_colour_list = ['lawngreen', 'blue', 'goldenrod', 'teal'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    dt_colour_list= ['red', 'purple', 'lightslategray',]
+
     ### name represents the name of respective variable with which file will be saved
     fig_list = []    ### plotly figure objects to plot later
     for (name, log_names, xy_data) in to_plot:
@@ -707,9 +710,13 @@ def plot_execution_interval_single(to_plot,
                 )
             
                 if thresholds != None:
-                    lower_th, upper_th = thresholds[var_name]
-                    lower_th *= 1000
-                    upper_th *= 1000
+                    if var_name not in thresholds.keys():
+                        lower_th = 0
+                        upper_th = 1000
+                    else:
+                        lower_th, upper_th = thresholds[var_name]
+                        lower_th *= 1000
+                        upper_th *= 1000
                     print('plot fun:', var_name, lower_th, upper_th)
 
                     #### select colour based on class
@@ -749,6 +756,116 @@ def plot_execution_interval_single(to_plot,
                         marker=dict(size=10, color='LightSeaGreen'),
                         showlegend=True,
                         name='Threshold',
+                    ))
+
+            ### plot ground_truths
+            if ground_truths != None:
+                gt_class_list = gt_classlist
+                ### sperate the content of ground_truths
+                ground_truths_values = ground_truths[0]
+                ground_truths_xticks = ground_truths[1]
+                ground_truths_class = ground_truths[2]
+
+                for (start_ind, end_ind), (start_ts, end_ts), cls in zip(ground_truths_values, ground_truths_xticks, ground_truths_class):
+                    ### check if time on x-axis
+                    start = start_ind
+                    end = end_ind
+
+                    #### select colour based on class
+                    fill_colour = gt_colour_list[cls-1]
+                    fig.add_shape(type="rect", # specify the shape type "rect"
+                            xref="x", # reference the x-axis
+                            yref="paper", # reference the y-axis
+                            x0=start, # the x-coordinate of the left side of the rectangle
+                            y0=0, # the y-coordinate of the bottom of the rectangle
+                            x1=end, # the x-coordinate of the right side of the rectangle
+                            y1=1, # the y-coordinate of the top of the rectangle
+                            fillcolor=fill_colour, # the fill color
+                            opacity=0.5, # the opacity
+                            layer="below", # draw shape below traces
+                            line_width=0, # outline width
+                            )
+                    
+                    # Add dotted lines on the sides of the rectangle
+                    for x in [start, end]:
+                        fig.add_shape(type="line",
+                                xref="x",
+                                yref="paper",
+                                x0=x,
+                                y0=0,
+                                x1=x,
+                                y1=1,
+                                line=dict(
+                                    color=fill_colour,
+                                    width=2,
+                                    dash="dot",
+                                ),
+                            )
+                
+                ##### add legend for anomaly based on colours/class
+                for colour, name in zip(gt_colour_list, gt_class_list):
+                    fig.add_trace(go.Scatter(
+                        x=[None],  # these traces will not have any data points
+                        y=[None],
+                        mode='markers',
+                        marker=dict(size=10, color=colour),
+                        showlegend=True,
+                        name=name,
+                    ))
+
+            ### plot detections
+            if detections != None:
+                dt_class_list = dt_classlist
+                ### sperate the content of detections
+                detections_values = detections[0]   ### index values
+                detections_xticks = detections[1]   ### timestamp values
+                detections_class = detections[2]    ### class values
+
+                for (start_ind, end_ind), (start_ts, end_ts), cls in zip(detections_values, detections_xticks, detections_class):
+                    ### check if time on x-axis
+                    start = start_ind
+                    end = end_ind
+
+                    #### select colour based on class
+                    fill_colour = dt_colour_list[cls]
+                    fig.add_shape(type="rect", # specify the shape type "rect"
+                            xref="x", # reference the x-axis
+                            yref="paper", # reference the y-axis
+                            x0=start, # the x-coordinate of the left side of the rectangle
+                            y0=0, # the y-coordinate of the bottom of the rectangle
+                            x1=end, # the x-coordinate of the right side of the rectangle
+                            y1=1, # the y-coordinate of the top of the rectangle
+                            fillcolor=fill_colour, # the fill color
+                            opacity=0.5, # the opacity
+                            layer="below", # draw shape below traces
+                            line_width=0, # outline width
+                            )
+                    
+                    # Add dotted lines on the sides of the rectangle
+                    for x in [start, end]:
+                        fig.add_shape(type="line",
+                                xref="x",
+                                yref="paper",
+                                x0=x,
+                                y0=0,
+                                x1=x,
+                                y1=1,
+                                line=dict(
+                                    color=fill_colour,
+                                    width=2,
+                                    dash="dot",
+                                ),
+                            )
+                
+                ##### add legend for anomaly based on colours/class
+                for colour, name in zip(dt_colour_list, dt_class_list):
+                    fig.add_trace(go.Scatter(
+                        x=[None],  # these traces will not have any data points
+                        y=[None],
+                        mode='markers',
+                        marker=dict(size=10, color=colour),
+                        showlegend=True,
+                        name=name,
                     ))
 
         if _y_all != []:

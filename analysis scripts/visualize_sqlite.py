@@ -371,6 +371,15 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     # print('CODE:', CODE, 'VERSION:', VERSION, 'BEHAVIOUR:', BEHAVIOUR, 'TRIAL:', TRIAL)
 
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
+    label_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/labels/trace_trial{TRIAL}_labels.json']
+    
+    predictions_path_ei = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_ei_detections.json']
+    predictions_path_ei_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_tp_ei_detections.json']
+    predictions_path_ei_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_fp_ei_detections.json']
+    
+    predictions_path_st = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_st_detections.json']
+    predictions_path_st_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_tp_st_detections.json']
+    predictions_path_st_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_fp_st_detections.json']
 
     threshold_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/faulty_data/thresholds.json']
     # print('var_list_path_ei', varlist_path)
@@ -399,14 +408,27 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
 
     ############ Get Thresholds ######################
     thresholds = None
+    labels = None
     if addons_flags is not None:
         if 'thresholds' in addons_flags:
             if os.path.exists(threshold_path[0]):
                 thresholds = read_json(threshold_path[0])
             else:
                 print('Threshold file does not exist')
+        
+        if 'labels' in addons_flags:
+            ### check if label file exists
+            if os.path.exists(label_path[0]):
+                labels = prepare_labels(label_path)   ### need input as a list
+                # labels = labels[start_index:end_index]
+                # print('labels:', labels)
+            else:
+                print('Label file does not exist')
 
-    plot_list = plot_execution_interval_single(to_plot, is_xticks=False, thresholds=thresholds)
+    plot_list = plot_execution_interval_single(to_plot, 
+                                               ground_truths= labels,
+                                               is_xticks=False, 
+                                               thresholds=thresholds)
     print('got plot_list')
     fig_list = []
     for fig in plot_list:
