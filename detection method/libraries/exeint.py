@@ -237,16 +237,22 @@ class exeInt:
                 
                 if lof_models != None:
                     ### check if exe_time is an outlier
-                    lof = lof_models[var]
-                    test_data = np.array([exe_time])
-                    # print(test_data)
-                    detection = lof.predict([test_data])
-                    # print('detection:', detection)
-                    if detection == -1:
+                    if var not in lof_models.keys():
                         print(f'Anomaly detected for {var} in {filename} at {i}th event')
                         print(f'Execution interval: {exe_time}')
                         # detected_anomalies += [[(var, var_tracking[var][-2]), (var, var_tracking[var][-1]), os.path.basename(sample_path)]]
-                        detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]
+                        detected_anomalies += [[(var,0), (var_tracking[var][-1]-3000, var_tracking[var][-1]), os.path.basename(sample_path)]]
+                    else:
+                        lof = lof_models[var]
+                        test_data = np.array([exe_time])
+                        # print(test_data)
+                        detection = lof.predict([test_data])
+                        # print('detection:', detection)
+                        if detection == -1:
+                            print(f'Anomaly detected for {var} in {filename} at {i}th event')
+                            print(f'Execution interval: {exe_time}')
+                            # detected_anomalies += [[(var, var_tracking[var][-2]), (var, var_tracking[var][-1]), os.path.basename(sample_path)]]
+                            detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]
 
         return detected_anomalies
     
