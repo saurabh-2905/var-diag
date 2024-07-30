@@ -18,6 +18,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
+############ Utility Functions ####################
 def prepare_labels(paths_label):
     ### count and prepare labels to plot
     '''
@@ -82,7 +83,10 @@ def prepare_detections(paths_detection, timestamps):
         plot_class += [0]
 
     return [plot_val, plot_x_ticks, plot_class]
+############ Utility Functions ####################
 
+
+############ AlchemySQL Database Structure ####################
 # Define the base for the declarative model
 Base = declarative_base()
 
@@ -112,7 +116,10 @@ class File_config(Base):
 
     events: Mapped[List["Event"]] = relationship(back_populates="config")
 
+############ AlchemySQL Database Structure ####################
 
+
+############ Acessing the Database ####################
 # Create an SQLite database (or connect to it if it already exists)
 database_url = 'sqlite:///events.db'
 engine = create_engine(database_url, echo=True)
@@ -135,14 +142,20 @@ session.close()
 # ### get in format required for plotting: [time, trace]
 # filtered_df = filtered_df[['time', 'trace']]
 
+############ Acessing the Database ####################
 
+##################################################
+############ Dash Application ####################
+##################################################
 
+############ Dash Layout ####################  
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # Define the layout of the app
 app.layout = dbc.Container([
     html.H1("Event Data Dashboard"),
+    html.Br(),
     html.H4("Select Experiment Config:"),
 
     dcc.Dropdown(
@@ -156,9 +169,9 @@ app.layout = dbc.Container([
 
     html.H4("Select Range (Event Trace):"),
     dcc.RangeSlider(0, 100, 1, 
-                    value=[0,10], 
+                    value=[0,20], 
                     marks=None, 
-                    pushable=10,
+                    pushable=20,
                     tooltip={
                         "placement": "bottom",
                         "always_visible": True,
@@ -168,15 +181,16 @@ app.layout = dbc.Container([
 
     html.Br(),
 
+    html.H4("Select Plotting Parameters:"),
     dcc.Checklist(
         id ='addons',
         options = ['with_time', 'x_ticks', 'labels', 'thresholds'],
-        value = ['x_ticks']
+        value = ['thresholds']
         # inline=True
     ),
 
     html.Br(),
-    html.H4("Select Detection Model to Vizualize Preditions:"),
+    html.H4("Select Detection Model to Vizualize Predictions:"),
     dcc.Dropdown(['st_predictions', 'ei_predictions'], None, id='detection_model'),
 
     html.Br(),
@@ -206,6 +220,10 @@ app.layout = dbc.Container([
     
 ])
 
+############ Dash Layout ####################
+
+
+############# Dash Functionality ####################
 # Define the callback to update the graph
 @app.callback(
     Output('time-series-plot', 'figure'),
@@ -437,7 +455,9 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     return fig_list
     # return dcc.Graph(figure=plot_list[0])
 
+############# Dash Functionality ####################
 
-# Run the app
+
+######## Run the app ########
 if __name__ == '__main__':
     app.run_server(debug=True)
