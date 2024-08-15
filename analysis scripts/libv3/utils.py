@@ -241,7 +241,7 @@ def plot_single_trace(df,
                       with_time=False, 
                       ground_truths=None, 
                       is_xticks=False, 
-                      gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt'],
+                      gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt', 'expected behaviour'],
                       detections=None,
                       dt_classlist=['detection'],
                       ):
@@ -252,8 +252,8 @@ def plot_single_trace(df,
     return:
     fig: plotly figure -> go.Figure
     '''
-    gt_colour_list = ['lawngreen', 'blue', 'goldenrod', 'teal'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
-    dt_colour_list= ['red', 'purple', 'lightslategray',]
+    gt_colour_list = ['skyblue', 'blue', 'goldenrod', 'teal', 'lawngreen'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    dt_colour_list= ['red', 'lightslategray',]
     # Create figure
     fig = go.Figure()
 
@@ -287,7 +287,10 @@ def plot_single_trace(df,
                 end = end_ind
 
             #### select colour based on class
-            fill_colour = gt_colour_list[cls-1]
+            if cls == -1:
+                fill_colour = gt_colour_list[cls]
+            else:
+                fill_colour = gt_colour_list[cls-1]
             fig.add_shape(type="rect", # specify the shape type "rect"
                     xref="x", # reference the x-axis
                     yref="paper", # reference the y-axis
@@ -420,7 +423,7 @@ def plot_single_trace(df,
             color='black',
         ),
         yaxis=dict(
-            title="Variables",
+            title="Events",
             tickvals=[k for k in range(0,len(var_list))],
             ticktext= var_list,
             tickfont = dict(size = FONTSIZE),
@@ -598,7 +601,7 @@ def preprocess_variable_plotting(var_timestamps, var_list, from_number, trace_nu
 def plot_execution_interval_single(to_plot, 
                                     ground_truths=None, 
                                     is_xticks=False, 
-                                    gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt'],
+                                    gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt', 'expected behaviour'],
                                     detections=None,
                                     dt_classlist=['detection'],
                                     thresholds=None):
@@ -610,8 +613,8 @@ def plot_execution_interval_single(to_plot,
     fig_list: list of plotly figure objects -> list
     '''
     # CODE, BEHAVIOUR, THREAD, VER = get_config()
-    gt_colour_list = ['lawngreen', 'blue', 'goldenrod', 'teal'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
-    dt_colour_list= ['red', 'purple', 'lightslategray',]
+    gt_colour_list = ['skyblue', 'blue', 'goldenrod', 'teal', 'lawngreen'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    dt_colour_list= ['red', 'lightslategray',]
 
     ### name represents the name of respective variable with which file will be saved
     fig_list = []    ### plotly figure objects to plot later
@@ -772,7 +775,10 @@ def plot_execution_interval_single(to_plot,
                     end = end_ind
 
                     #### select colour based on class
-                    fill_colour = gt_colour_list[cls-1]
+                    if cls == -1:
+                        fill_colour = gt_colour_list[cls]
+                    else:
+                        fill_colour = gt_colour_list[cls-1]
                     fig.add_shape(type="rect", # specify the shape type "rect"
                             xref="x", # reference the x-axis
                             yref="paper", # reference the y-axis
