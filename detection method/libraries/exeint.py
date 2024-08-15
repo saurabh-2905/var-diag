@@ -89,9 +89,11 @@ class exeInt:
         ### get upper and lower bound by taking min and max from unique_values (can try some other approach)
         thresholds = {}
         for key in unique_values.keys():
-            print('Unique values:', key, unique_values[key])
+            # print('Unique values:', key, unique_values[key])
             values = list(unique_values[key].keys())
-            thresholds[key] = [np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None)]
+            # print('Key:', key, len(values))
+            if len(values) > 1:
+                thresholds[key] = [np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None)]
 
         return thresholds
 
@@ -225,15 +227,18 @@ class exeInt:
 
                 if thresholds != None:
                     ### check if var was present in the training data
-                    if var not in thresholds.keys():
-                        thresholds[var] = [0.0, 3]
+                    # if var not in thresholds.keys():
+                    #     thresholds[var] = [0.0, 3]
                         
-                    ### check if exe_time is an outlier
-                    if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
-                        print(f'Anomaly detected for {var} in {filename} at {i}th event')
-                        print(f'Execution interval: {exe_time}')
-                        detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
-                        # detected_anomalies += [[(var,0), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                    if var in thresholds.keys():
+                        ### check if exe_time is an outlier
+                        if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
+                            print(f'Anomaly detected for {var} in {filename} at {i}th event')
+                            print(f'Execution interval: {exe_time}')
+                            detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                            # detected_anomalies += [[(var,0), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                        else:
+                            print(f'{var} not present during training')
                 
                 if lof_models != None:
                     ### check if exe_time is an outlier
