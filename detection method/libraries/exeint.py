@@ -432,6 +432,7 @@ class exeInt:
         gt_pred = defaultdict(list)      ### list of detections for each gt instance. The index of list denote its respective pred at that index, and list contains gt for that pred.
         rest_pred = [] ### list of detections that are not associated with any gt instance
         correct_pred = [] ### list of correct predictions
+        false_negatives = [] ### list of false negatives
         y_true_ind = []
         y_pred_ind = []
         y_true = []
@@ -521,6 +522,7 @@ class exeInt:
                         ### this means no detection for this gt, denots FN
                         y_true += [1]
                         y_pred += [0]
+                        false_negatives += [gt]
             
         ### calculate FP
         for im, pred in enumerate(detection):
@@ -529,7 +531,7 @@ class exeInt:
                 y_true += [0]
                 y_pred += [1]
 
-        return correct_pred, rest_pred, y_pred, y_true
+        return correct_pred, rest_pred, y_pred, y_true, false_negatives
     
 
     def viz_thresholds(self, exe_list, confidence_intervals=None, thresholds=None):
