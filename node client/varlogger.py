@@ -55,6 +55,11 @@ class VarLogger:
     def log(cls, var='0', fun='0', clas='0', th='0', val=None, save=None):
         '''
         var -> str = name of the variable
+        fun -> str = name of the function
+        clas -> str = name of the class
+        th -> str = thread id
+        val -> any = value of the variable
+        save -> bool = save the data to flash. If None, it will save the data after 1000 events. If True, it will save the data immediately. If False, it will not save the data
         '''
         dict_keys = cls.data_dict.keys()
         ### map thread id to a single digit integer fo simplicity
