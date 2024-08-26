@@ -184,7 +184,7 @@ app.layout = dbc.Container([
     html.H4("Select Plotting Parameters:"),
     dcc.Checklist(
         id ='addons',
-        options = ['with_time', 'x_ticks', 'labels', 'thresholds'],
+        options = ['with_time', 'x_ticks', 'labels', 'thresholds', 'variables'],
         value = ['thresholds']
         # inline=True
     ),
@@ -296,6 +296,7 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     predictions = None
     plot_time = False
     plot_x_ticks = False
+    y_ticks = sorted_keys
     if addons_flags is not None:
         if 'labels' in addons_flags:
             ### check if label file exists
@@ -311,6 +312,9 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
 
         if 'x_ticks' in addons_flags:
             plot_x_ticks = True
+
+        if 'variables' in addons_flags:
+            y_ticks = var_list
 
         ############## get predictions ####################
     if detection_model is not None:
@@ -348,7 +352,7 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
                     print('Prediction file does not exist')
 
     fig = plot_single_trace(selected_df, 
-                            var_list, 
+                            y_ticks,
                             with_time=plot_time, 
                             is_xticks=plot_x_ticks, 
                             ground_truths=labels,
@@ -446,7 +450,8 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     plot_list = plot_execution_interval_single(to_plot, 
                                                ground_truths= labels,
                                                is_xticks=False, 
-                                               thresholds=thresholds)
+                                               thresholds=thresholds,
+                                               var2num=to_number)
     print('got plot_list')
     fig_list = []
     for fig in plot_list:
