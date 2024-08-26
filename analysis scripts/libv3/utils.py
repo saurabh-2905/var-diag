@@ -11,7 +11,7 @@ from io import StringIO
 
 
 #### config for plotting #####
-FONTSIZE = 15
+FONTSIZE = 25
 # PLOTWIDTH = 2000
 PLOTHEIGHT = 1500
 
@@ -411,7 +411,7 @@ def plot_single_trace(df,
 
     # Add range slider, title, yticks, axes labels
     fig.update_layout(
-        title_text="Event Trace without Time",
+        # title_text="Event Trace without Time",
         xaxis=dict(
             title="Number of events",
             rangeslider=dict(visible=True),
@@ -604,7 +604,8 @@ def plot_execution_interval_single(to_plot,
                                     gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt', 'expected behaviour'],
                                     detections=None,
                                     dt_classlist=['detection'],
-                                    thresholds=None):
+                                    thresholds=None,
+                                    var2num=None):
     '''
     This function plots the execution intervals for each variable
     to_plot: list of variables to plot -> list ; output of preprocess_variable_plotting()
@@ -626,6 +627,7 @@ def plot_execution_interval_single(to_plot,
         dir_name = os.path.dirname(to_write_name)
         to_write_name = os.path.join(dir_name, file_name)
         var_name = os.path.basename(name)
+        var_num =  var2num[var_name]
         
         ########## make data frame to be able to plot ################
         df = dict()
@@ -671,7 +673,7 @@ def plot_execution_interval_single(to_plot,
                 
                 # Add range slider, title, yticks, axes labels
                 fig.update_layout(
-                    title_text=f"Execution Interval for '{var_name}'",
+                    title_text=f"Execution Interval for {var_num} - '{var_name}'",
                     xaxis=dict(
                         title="Number of events",
                         rangeslider=dict(visible=True),
