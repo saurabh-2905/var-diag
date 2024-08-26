@@ -100,7 +100,7 @@ class VarLogger:
 
         #print(cls._write_count)
         ### write to flash approx every 6 secs (counting to 1000 = 12 ms)
-        num_events = 1000
+        num_events = 200
         if (cls._write_count >= num_events and save != False):
             cls._write_count = 0
             start_time = utime.ticks_ms()
