@@ -180,7 +180,6 @@ app.layout = dbc.Container([
                     id='range-slider'),
 
     html.Br(),
-
     html.H4("Select Plotting Parameters:"),
     dcc.Checklist(
         id ='addons',
@@ -198,7 +197,10 @@ app.layout = dbc.Container([
     dcc.Dropdown(['all_predict', 'tp_predict', 'fp_predict'], 'all_predict', id='detection_subset'),
 
     html.Br(),
+    html.H4("Merge with diff_val (seconds):"),
+    dcc.Dropdown(['0', '1', '2', '5'], '2', id='diff_val'),
 
+    html.Br(),
     dcc.Loading(
             [dcc.Graph(id='time-series-plot')],
             overlay_style={"visibility":"visible", "filter": "blur(2px)"},
@@ -231,9 +233,10 @@ app.layout = dbc.Container([
      Input('range-slider', 'value'), 
      Input('addons', 'value'),
      Input('detection_model', 'value'),
-     Input('detection_subset', 'value')]
+     Input('detection_subset', 'value'),
+     Input('diff_val', 'value')]
 )
-def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset):
+def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset, diff_val):
     session = Session()
     events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
     # print('events_query:', len(events_query))
@@ -258,17 +261,20 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     BEHAVIOUR = config_df.loc[config_df['id'] == selected_config_id, 'behaviour'].iloc[0]
     TRIAL = config_df.loc[config_df['id'] == selected_config_id, 'trial_num'].iloc[0]
     # print('CODE:', CODE, 'VERSION:', VERSION, 'BEHAVIOUR:', BEHAVIOUR, 'TRIAL:', TRIAL)
+    if diff_val is not None:
+        diff_val = int(diff_val)
+        # print('diff_val:', diff_val)
 
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
     label_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/labels/trace_trial{TRIAL}_labels.json']
     
-    predictions_path_ei = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_ei_detections.json']
-    predictions_path_ei_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_tp_ei_detections.json']
-    predictions_path_ei_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_fp_ei_detections.json']
+    predictions_path_ei = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_ei_detections_{diff_val}.json']
+    predictions_path_ei_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_tp_ei_detections_{diff_val}.json']
+    predictions_path_ei_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_fp_ei_detections_{diff_val}.json']
     
-    predictions_path_st = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_st_detections.json']
-    predictions_path_st_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_tp_st_detections.json']
-    predictions_path_st_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_fp_st_detections.json']
+    predictions_path_st = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_st_detections_{diff_val}.json']
+    predictions_path_st_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_tp_st_detections_{diff_val}.json']
+    predictions_path_st_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_fp_st_detections_{diff_val}.json']
     # print('var_list_path_ET', varlist_path)
 
     ############# check varlist is consistent ############
@@ -305,6 +311,7 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
                 # labels = labels[start_index:end_index]
                 # print('labels:', labels)
             else:
+                labels = None
                 print('Label file does not exist')
 
         if 'with_time' in addons_flags:
@@ -445,6 +452,7 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
                 # labels = labels[start_index:end_index]
                 # print('labels:', labels)
             else:
+                labels = None
                 print('Label file does not exist')
 
     plot_list = plot_execution_interval_single(to_plot, 
