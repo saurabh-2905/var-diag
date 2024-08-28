@@ -92,7 +92,7 @@ class exeInt:
             # print('Unique values:', key, unique_values[key])
             values = list(unique_values[key].keys())
             # print('Key:', key, len(values))
-            if len(values) > 1:
+            if len(values) >= 1:
                 thresholds[key] = [np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None)]
 
         return thresholds
@@ -352,7 +352,7 @@ class exeInt:
             # diff_ts2 = abs(y2 - y1)    ### did not use it because the problem was solved by increasing diff_vaal to 5
             print('Merge diff:', diff_ts1, x1, x2)
             ### decision to wether or not group detections
-            if diff_ts1 < DIFF_VAL:
+            if diff_ts1 <= DIFF_VAL:
                 group += [pred[xi]]
                 group_ind += [xi]
                 if xi == len(det_ts1)-2:  ### for last pair
@@ -360,7 +360,7 @@ class exeInt:
                     group_ind += [xi+1]
                     aggregated_ts_ind += [group_ind]
                     aggregated_ts += [group]
-            elif diff_ts1 >= DIFF_VAL:
+            elif diff_ts1 > DIFF_VAL:
                 group_ind += [xi]
                 group += [pred[xi]]   ### group the predictions which have time diff less than 2 seconds
                 # print(group)
