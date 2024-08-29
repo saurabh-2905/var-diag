@@ -354,7 +354,10 @@ class exeInt:
             diff_ts2 = abs(x2 - y1)  
             print('Merge diff:', diff_ts1, x1, x2)
             ### decision to wether or not group detections. If the difference between the detections is less than diff_val seconds, then group them
-            if diff_ts1 <= DIFF_VAL:
+            ### if the difference between the detections is more than diff_val seconds, 
+            ### then check if the second detection has started before first detection ends or 
+            ### the second detecion starts withing diff_val seconds from end of rist detection. If yes, then group them
+            if (x2 < y1) or diff_ts2 <= DIFF_VAL:
                 group += [pred[xi]]
                 group_ind += [xi]
                 if xi == len(det_ts1)-2:  ### for last pair
@@ -362,30 +365,18 @@ class exeInt:
                     group_ind += [xi+1]
                     aggregated_ts_ind += [group_ind]
                     aggregated_ts += [group]
-            elif diff_ts1 > DIFF_VAL:
-                ### if the difference between the detections is more than diff_val seconds, 
-                ### then check if the second detection has started before first detection ends or 
-                ### the second detecion starts withing diff_val seconds from end of rist detection. If yes, then group them
-                if x2 < y1 or diff_ts2 <= DIFF_VAL:
-                    group += [pred[xi]]
-                    group_ind += [xi]
-                    if xi == len(det_ts1)-2:  ### for last pair
-                        group += [pred[xi+1]]
-                        group_ind += [xi+1]
-                        aggregated_ts_ind += [group_ind]
-                        aggregated_ts += [group]
-                else:
-                    group_ind += [xi]
-                    group += [pred[xi]]   ### group the predictions which have time diff less than 2 seconds
-                    # print(group)
-                    aggregated_ts_ind += [group_ind]   
-                    aggregated_ts += [group]    ### collect all the groups
-                    group = []
-                    if xi == len(det_ts1)-2:   ### for last pair
-                        group += [pred[xi+1]]
-                        group_ind += [xi+1]
-                        aggregated_ts_ind += [group_ind]
-                        aggregated_ts += [group]
+            else:
+                group_ind += [xi]
+                group += [pred[xi]]   ### group the predictions which have time diff less than 2 seconds
+                # print(group)
+                aggregated_ts_ind += [group_ind]   
+                aggregated_ts += [group]    ### collect all the groups
+                group = []
+                if xi == len(det_ts1)-2:   ### for last pair
+                    group += [pred[xi+1]]
+                    group_ind += [xi+1]
+                    aggregated_ts_ind += [group_ind]
+                    aggregated_ts += [group]
 
         ### merge the detections (starting TS from first detection and ending TS from last detection from each group)
         merge_detection = []
