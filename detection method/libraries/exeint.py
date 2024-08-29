@@ -210,10 +210,12 @@ class exeInt:
         filename = sample_path.split('/')[-1].split('.')[0]
         ### iterate trace and make decision for each exe interval
         var_tracking = {}
+        all_ts = []
         for i in range(len(sample_data)):
             event = sample_data[i]
             var, ts = event
             ts = int(ts)
+            all_ts += [ts]
             if var not in var_tracking.keys():
                 var_tracking[var] = [ts]
             else:
@@ -234,11 +236,26 @@ class exeInt:
                         ### check if exe_time is an outlier
                         if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
                             print(f'Anomaly detected for {var} in {filename} at {i}th event')
-                            print(f'Execution interval: {exe_time}')
-                            detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                            # print(f'Execution interval: {exe_time}')
+                            # detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                            
+                            # #### since the variables can occur less frequently and cause larger detections, make the detection more precise with following logic
+                            # lb = var_tracking[var][-2]
+                            # ub = var_tracking[var][-1]
+                            # mid = ((ub-lb)//2)+lb
+                            # ### find the closet higher ans lower from ts to the mid point
+                            # for x in all_ts:
+                            #     if x < mid-(thresholds[var][1]*1000//2):
+                            #         lb = x
+                            #     elif x > mid+(thresholds[var][1]*1000//2):
+                            #         ub = x
+                            #         break
+                            # detected_anomalies += [[(var,0), (lb, ub), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST
+                            # print('clipped:', (var_tracking[var][-2] - var_tracking[var][-1]), 'to:', (lb - ub))
+                            lb = max(var_tracking[var][-1]-(thresholds[var][1]*1000*1.5), var_tracking[var][-1]-15000)
+                            detected_anomalies += [[(var,0), (lb, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                            
                             # detected_anomalies += [[(var,0), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
-                        else:
-                            print(f'{var} not present during training')
                 
                 if lof_models != None:
                     ### check if exe_time is an outlier
@@ -352,7 +369,7 @@ class exeInt:
             diff_ts1 = abs(x2 - x1)
             ### diff between start of first detection and end of second detection
             diff_ts2 = abs(x2 - y1)  
-            print('Merge diff:', diff_ts1, x1, x2)
+            # print('Merge diff:', diff_ts1, x1, x2)
             ### decision to wether or not group detections. If the difference between the detections is less than diff_val seconds, then group them
             ### if the difference between the detections is more than diff_val seconds, 
             ### then check if the second detection has started before first detection ends or 
