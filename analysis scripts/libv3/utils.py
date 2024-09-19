@@ -11,7 +11,7 @@ from io import StringIO
 
 
 #### config for plotting #####
-FONTSIZE = 25
+FONTSIZE = 18
 # PLOTWIDTH = 2000
 PLOTHEIGHT = 1500
 
@@ -161,10 +161,10 @@ def is_consistent(varlist_paths: list):
     for ind, varlist_p in enumerate(varlist_paths[1:]):
         varlist_ = read_json(varlist_p)
         if varlist != varlist_:
-            print(f'varlist {ind+1} is not consistent varlist 0')
+            # print(f'varlist {ind+1} is not consistent varlist 0')
             inconsistent += [varlist_p]
-        else:
-            print(f'varlist {ind+1} is consistent with varlist 0')
+        # else:
+        #     # print(f'varlist {ind+1} is consistent with varlist 0')
     
     if inconsistent != []:
         return False, inconsistent
