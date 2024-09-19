@@ -363,18 +363,29 @@ class exeInt:
         group_ind = []
         aggregated_ts = []
         aggregated_ts_ind = []
+        ymax = 0
+        cond1 = False
+        cond2 = False
         for xi, (x1, x2, y1, y2) in enumerate(zip(det_ts1[0:-1], det_ts1[1:], det_ts2[0:-1], det_ts2[1:])):    ### get the first and last timestamp of every detection
             # print(xi)
             ### diff between start points of two detections
-            diff_ts1 = abs(x2 - x1)
+            # diff_ts1 = abs(x2 - x1)
             ### diff between start of first detection and end of second detection
-            diff_ts2 = abs(x2 - y1)  
+            if y1 > ymax:
+                ymax = y1
+                
+            if group != []:
+                cond1 = x2 < ymax
+            else:
+                cond1 = x2 < y1
+            diff_ts2 = abs(x2 - y1)
+            cond2 = diff_ts2 <= DIFF_VAL
             # print('Merge diff:', diff_ts1, x1, x2)
             ### decision to wether or not group detections. If the difference between the detections is less than diff_val seconds, then group them
             ### if the difference between the detections is more than diff_val seconds, 
             ### then check if the second detection has started before first detection ends or 
             ### the second detecion starts withing diff_val seconds from end of rist detection. If yes, then group them
-            if (x2 < y1) or diff_ts2 <= DIFF_VAL:
+            if cond1 or cond2:
                 group += [pred[xi]]
                 group_ind += [xi]
                 if xi == len(det_ts1)-2:  ### for last pair
@@ -382,6 +393,7 @@ class exeInt:
                     group_ind += [xi+1]
                     aggregated_ts_ind += [group_ind]
                     aggregated_ts += [group]
+                ### store the highest ts that shows end of the groupped detections
             else:
                 group_ind += [xi]
                 group += [pred[xi]]   ### group the predictions which have time diff less than 2 seconds
@@ -389,6 +401,7 @@ class exeInt:
                 aggregated_ts_ind += [group_ind]   
                 aggregated_ts += [group]    ### collect all the groups
                 group = []
+                ymax = 0
                 if xi == len(det_ts1)-2:   ### for last pair
                     group += [pred[xi+1]]
                     group_ind += [xi+1]
