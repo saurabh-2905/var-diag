@@ -1,0 +1,1 @@
+print(gc.mem_alloc(), gc.mem_free(), gc.mem_alloc()+ gc.mem_free(), micropython.mem_info())
