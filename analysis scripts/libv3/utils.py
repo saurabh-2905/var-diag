@@ -241,7 +241,7 @@ def plot_single_trace(df,
                       with_time=False, 
                       ground_truths=None, 
                       is_xticks=False, 
-                      gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt', 'expected behaviour'],
+                      gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt', 'out_of_sync'],
                       detections=None,
                       dt_classlist=['detection'],
                       ):
@@ -252,7 +252,7 @@ def plot_single_trace(df,
     return:
     fig: plotly figure -> go.Figure
     '''
-    gt_colour_list = ['skyblue', 'blue', 'goldenrod', 'teal', 'lawngreen'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    gt_colour_list = ['skyblue', 'lawngreen', 'goldenrod', 'teal', 'lightcoral'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
     dt_colour_list= ['red', 'lightslategray',]
     # Create figure
     fig = go.Figure()
