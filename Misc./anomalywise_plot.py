@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 
 # Data from the table
@@ -23,6 +22,14 @@ plt.ylabel("Detection Rate (DR)")
 plt.title("Detection Rate Comparison for ST and EI")
 plt.xticks(ticks=x, labels=anomalies, rotation=0, ha="center")
 plt.legend()
+
+# Adding horizontal grid lines
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+# Displaying values at each point
+for i, (x_val, st_val, ei_val) in enumerate(zip(x, st_dr, ei_dr)):
+    plt.text(x_val, st_val + 2, f"{st_val}%", ha='center', color='blue', fontsize=9)
+    plt.text(x_val, ei_val + 2, f"{ei_val}%", ha='center', color='green', fontsize=9)
 
 # Display the plot
 plt.tight_layout()
