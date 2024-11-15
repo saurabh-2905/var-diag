@@ -196,5 +196,7 @@ add_bar_labels(rects1)
 add_bar_labels(rects2)
 add_bar_labels(rects3)
 
+# Adding horizontal grid lines
+# plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
