@@ -374,6 +374,54 @@ class StateTransition:
 
         return correct_pred, rest_pred, y_pred, y_true, false_negatives
     
+    # def calculate_tp_fp_tn_fn(self, detection, ground_truth):
+    #     # Initialize counts
+    #     TP = FP = TN = FN = 0
+
+    #     # Convert ground truth to a structured format for easier processing
+    #     processed_ground_truth = []
+    #     for gt in ground_truth:
+    #         if gt:
+    #             ind1, ind2, gt_ts1, gt_ts2, _ = gt
+    #             processed_ground_truth.append((ind1, ind2, gt_ts1, gt_ts2))
+
+    #     # Iterate through detections
+    #     for det in detection:
+    #         if det:
+    #             (det_var1, det_var2), (pd_ts1, pd_ts2), _ = det
+    #             found_match = False
+                
+    #             # Check against all ground truths
+    #             for gt_ind1, gt_ind2, gt_ts1, gt_ts2 in processed_ground_truth:
+    #                 # Check conditions
+    #                 cond_1 = pd_ts1 >= gt_ts1 and pd_ts2 <= gt_ts2
+    #                 cond_2 = pd_ts1 <= gt_ts1 and pd_ts2 >= gt_ts2
+    #                 cond_3 = pd_ts1 >= gt_ts1 and pd_ts1 <= gt_ts2 and pd_ts2 >= gt_ts2 and (pd_ts2 - gt_ts2 <= 5)
+    #                 cond_4 = pd_ts2 <= gt_ts2 and pd_ts2 >= gt_ts1 and pd_ts1 <= gt_ts1 and (gt_ts1 - pd_ts1 <= 5)
+
+    #                 if cond_1 or cond_2 or cond_3 or cond_4:
+    #                     TP += 1
+    #                     found_match = True
+    #                     break
+                
+    #             if not found_match:
+    #                 FP += 1
+        
+    #     # Calculate FN for unmatched ground truths
+    #     for gt_ind1, gt_ind2, gt_ts1, gt_ts2 in processed_ground_truth:
+    #         matched = any(
+    #             (pd_ts1 >= gt_ts1 and pd_ts2 <= gt_ts2) or
+    #             (pd_ts1 <= gt_ts1 and pd_ts2 >= gt_ts2) or
+    #             (pd_ts1 >= gt_ts1 and pd_ts1 <= gt_ts2 and pd_ts2 >= gt_ts2 and (pd_ts2 - gt_ts2 <= 5)) or
+    #             (pd_ts2 <= gt_ts2 and pd_ts2 >= gt_ts1 and pd_ts1 <= gt_ts1 and (gt_ts1 - pd_ts1 <= 5))
+    #             for (det_var1, det_var2), (pd_ts1, pd_ts2), _ in detection if det
+    #         )
+    #         if not matched:
+    #             FN += 1
+        
+    #     # TN is not calculated as there's no information on true negatives
+    #     return TP, FP, TN, FN
+        
     
 
 class StateTransitionProb:
