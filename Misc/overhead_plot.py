@@ -59,123 +59,123 @@ source_with_det = [82.329, 78.471, 86.29]
 
 ############ individual plots for each metric #############################
 
-### X labels for applications
-labels = ['Temp-Sensor', 'MaMBA', 'Contiki-MAC']
+# ### X labels for applications
+# labels = ['Temp-Sensor', 'MaMBA', 'Contiki-MAC']
 
-x = np.arange(len(labels))
-bar_width = 0.3  # Reduced bar width to make bars thinner
+# x = np.arange(len(labels))
+# bar_width = 0.3  # Reduced bar width to make bars thinner
 
-def add_bar_labels(ax, bars, round_up=True):
-    """Add rounded labels on top of the bars."""
-    for bar in bars:
-        yval = bar.get_height()  # Round up the value
-        if round_up:
-            yval_round = round(bar.get_height(), 3)  # Round up the value
-        else:
-            yval_round = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, yval, f'{yval_round}', ha='center', va='bottom')
+# def add_bar_labels(ax, bars, round_up=True):
+#     """Add rounded labels on top of the bars."""
+#     for bar in bars:
+#         yval = bar.get_height()  # Round up the value
+#         if round_up:
+#             yval_round = round(bar.get_height(), 3)  # Round up the value
+#         else:
+#             yval_round = bar.get_height()
+#         ax.text(bar.get_x() + bar.get_width()/2, yval, f'{yval_round}', ha='center', va='bottom')
 
-def add_scientific_labels(ax, bars):
-    """Add labels on top of the bars in scientific notation."""
-    for bar in bars:
-        yval = bar.get_height()
-        # Convert to scientific notation
-        sci_label = f'{yval:.2e}'  # Format as scientific notation (e.g., 6.02e+08)
-        ax.text(bar.get_x() + bar.get_width()/2, yval, sci_label, ha='center', va='bottom')
+# def add_scientific_labels(ax, bars):
+#     """Add labels on top of the bars in scientific notation."""
+#     for bar in bars:
+#         yval = bar.get_height()
+#         # Convert to scientific notation
+#         sci_label = f'{yval:.2e}'  # Format as scientific notation (e.g., 6.02e+08)
+#         ax.text(bar.get_x() + bar.get_width()/2, yval, sci_label, ha='center', va='bottom')
 
 
-### Create subplots
-# fig, (ax1) = plt.subplots(1, 1, figsize=(8, 6))  # Adjusted figure size to make graphs less wide
+# ### Create subplots
+# # fig, (ax1) = plt.subplots(1, 1, figsize=(8, 6))  # Adjusted figure size to make graphs less wide
 
-# # Plot CPU count comparison (removed error bars)
-# bars1 = ax1.bar(x - bar_width/2, cpu_without_log, bar_width, label='Without Log', color='skyblue')
-# bars2 = ax1.bar(x + bar_width/2, cpu_with_log, bar_width, label='With Log', color='coral')
-# ax1.set_ylabel('CPU ticks')
-# # ax1.set_title('CPU ticks Comparison Across Applications')
-# ax1.set_xticks(x)
-# ax1.set_xticklabels(labels)
-# ax1.legend(loc='lower center', bbox_to_anchor=(0.5, -0.15), ncol=2)
+# # # Plot CPU count comparison (removed error bars)
+# # bars1 = ax1.bar(x - bar_width/2, cpu_without_log, bar_width, label='Without Log', color='skyblue')
+# # bars2 = ax1.bar(x + bar_width/2, cpu_with_log, bar_width, label='With Log', color='coral')
+# # ax1.set_ylabel('CPU ticks')
+# # # ax1.set_title('CPU ticks Comparison Across Applications')
+# # ax1.set_xticks(x)
+# # ax1.set_xticklabels(labels)
+# # ax1.legend(loc='lower center', bbox_to_anchor=(0.5, -0.15), ncol=2)
 
-# ### Add bar labels
-# add_scientific_labels(ax1, bars1)
-# add_scientific_labels(ax1, bars2)
+# # ### Add bar labels
+# # add_scientific_labels(ax1, bars1)
+# # add_scientific_labels(ax1, bars2)
+
+# # # Adjust layout and show plot
+# # plt.tight_layout()
+# # plt.show()
+
+# ### Create subplots for Power consumption
+# fig, (ax2) = plt.subplots(1, 1, figsize=(8, 6))
+
+# # Plot Power consumption comparison (removed error bars)
+# bars1 = ax2.bar(x - bar_width, power_without_log, bar_width, label='No VarLogger', color='#CC0066') #red
+# bars2 = ax2.bar(x, power_with_log, bar_width, label='Logging Mode', color='#FFCC00') # yellow
+# bars3 = ax2.bar(x + bar_width, power_with_det, bar_width, label='Detection Mode', color='#009933') # green
+# ax2.set_ylabel('mAH')
+# ax2.set_xlabel('Applications')
+# # ax2.set_title('Power Consumption Comparison Across Applications')
+# ax2.set_xticks(x)
+# ax2.set_xticklabels(labels)
+# ax2.legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
+
+# # Add bar labels
+# add_bar_labels(ax2, bars1)
+# add_bar_labels(ax2, bars2)
+# add_bar_labels(ax2, bars3)
 
 # # Adjust layout and show plot
 # plt.tight_layout()
 # plt.show()
 
-### Create subplots for Power consumption
-fig, (ax2) = plt.subplots(1, 1, figsize=(8, 6))
+# # Create subplots for RAM usage
+# fig, (ax3) = plt.subplots(1, 1, figsize=(8, 6))
 
-# Plot Power consumption comparison (removed error bars)
-bars1 = ax2.bar(x - bar_width, power_without_log, bar_width, label='No VarLogger', color='#CC0066') #red
-bars2 = ax2.bar(x, power_with_log, bar_width, label='Logging Mode', color='#FFCC00') # yellow
-bars3 = ax2.bar(x + bar_width, power_with_det, bar_width, label='Detection Mode', color='#009933') # green
-ax2.set_ylabel('mAH')
-ax2.set_xlabel('Applications')
-# ax2.set_title('Power Consumption Comparison Across Applications')
-ax2.set_xticks(x)
-ax2.set_xticklabels(labels)
-ax2.legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
+# # Plot RAM usage comparison (removed error bars)
+# bars1 = ax3.bar(x - bar_width, ram_without_log, bar_width, label='No VarLogger', color='#CC0066') # red
+# bars2 = ax3.bar(x, ram_with_log, bar_width, label='Logging Mode', color='#FFCC00') # yellow
+# bars3 = ax3.bar(x + bar_width, ram_with_det, bar_width, label='Detection Mode', color='#009933') # green
+# ax3.set_ylabel('Bytes (KB)')
+# ax3.set_xlabel('Applications')
+# # ax3.set_title('RAM Usage (heap) Comparison Across Applications')
+# ax3.set_xticks(x)
+# ax3.set_xticklabels(labels)
+# ax3.legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
 
-# Add bar labels
-add_bar_labels(ax2, bars1)
-add_bar_labels(ax2, bars2)
-add_bar_labels(ax2, bars3)
+# # Add bar labels
+# add_bar_labels(ax3, bars1)
+# add_bar_labels(ax3, bars2)
+# add_bar_labels(ax3, bars3)
 
-# Adjust layout and show plot
-plt.tight_layout()
-plt.show()
-
-# Create subplots for RAM usage
-fig, (ax3) = plt.subplots(1, 1, figsize=(8, 6))
-
-# Plot RAM usage comparison (removed error bars)
-bars1 = ax3.bar(x - bar_width, ram_without_log, bar_width, label='No VarLogger', color='#CC0066') # red
-bars2 = ax3.bar(x, ram_with_log, bar_width, label='Logging Mode', color='#FFCC00') # yellow
-bars3 = ax3.bar(x + bar_width, ram_with_det, bar_width, label='Detection Mode', color='#009933') # green
-ax3.set_ylabel('Bytes (KB)')
-ax3.set_xlabel('Applications')
-# ax3.set_title('RAM Usage (heap) Comparison Across Applications')
-ax3.set_xticks(x)
-ax3.set_xticklabels(labels)
-ax3.legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
-
-# Add bar labels
-add_bar_labels(ax3, bars1)
-add_bar_labels(ax3, bars2)
-add_bar_labels(ax3, bars3)
-
-# Adjust layout and show plot
-plt.tight_layout()
-plt.show()
+# # Adjust layout and show plot
+# plt.tight_layout()
+# plt.show()
 
 
-# Create subplots for Source code
-fig, (ax4) = plt.subplots(1, 1, figsize=(8, 6))
+# # Create subplots for Source code
+# fig, (ax4) = plt.subplots(1, 1, figsize=(8, 6))
 
-# Plot RAM usage comparison (removed error bars)
-bars1 = ax4.bar(x - bar_width, source_without_log, bar_width, label='No VarLogger', color='#CC0066') # red
-bars2 = ax4.bar(x , source_with_log, bar_width, label='Logging Mode', color='#FFCC00') # yellow
-bars3 = ax4.bar(x + bar_width, source_with_det, bar_width, label='Detection Mode', color='#009933') # green
-ax4.set_ylabel('Kilo-Bytes (KB)')
-ax4.set_xlabel('Applications')
-# ax4.set_title('Source Code Size Comparison Across Applications')
-ax4.set_xticks(x)
-ax4.set_xticklabels(labels)
-ax4.legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
+# # Plot RAM usage comparison (removed error bars)
+# bars1 = ax4.bar(x - bar_width, source_without_log, bar_width, label='No VarLogger', color='#CC0066') # red
+# bars2 = ax4.bar(x , source_with_log, bar_width, label='Logging Mode', color='#FFCC00') # yellow
+# bars3 = ax4.bar(x + bar_width, source_with_det, bar_width, label='Detection Mode', color='#009933') # green
+# ax4.set_ylabel('Kilo-Bytes (KB)')
+# ax4.set_xlabel('Applications')
+# # ax4.set_title('Source Code Size Comparison Across Applications')
+# ax4.set_xticks(x)
+# ax4.set_xticklabels(labels)
+# ax4.legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
 
-# Add bar labels
-add_bar_labels(ax4, bars1)
-add_bar_labels(ax4, bars2)
-add_bar_labels(ax4, bars3)
+# # Add bar labels
+# add_bar_labels(ax4, bars1)
+# add_bar_labels(ax4, bars2)
+# add_bar_labels(ax4, bars3)
 
-# Adjust layout and show plot
-plt.tight_layout()
-plt.show()
+# # Adjust layout and show plot
+# plt.tight_layout()
+# plt.show()
 
 
-#########################################################################################
+# #########################################################################################
 
 ########################### Overhead Calculation ########################################
 # Calculate overhead for each metric
@@ -184,9 +184,6 @@ power_overhead = [(w - wo) / wo * 100 for w, wo in zip(power_with_log, power_wit
 ram_overhead = [(w - wo) / wo * 100 for w, wo in zip(ram_with_log, ram_without_log)]
 source_overhead = [(w - wo) / wo * 100 for w, wo in zip(source_with_log, source_without_log)]
 
-# power_overhead = [w - wo for w, wo in zip(power_with_log, power_without_log)]
-# ram_overhead = [w - wo for w, wo in zip(ram_with_log, ram_without_log)]
-# source_overhead = [w - wo for w, wo in zip(source_with_log, source_without_log)]
 
 # Metrics and Applications
 # metrics = ['CPU Count', 'Power Consumption', 'RAM Usage', 'Source Code Size']
@@ -197,90 +194,33 @@ app_labels = ['Temp-Sensor', 'MaMBA', 'Contiki-MAC']
 # overhead_data = [cpu_overhead, power_overhead, ram_overhead, source_overhead]
 overhead_data = [power_overhead, ram_overhead, source_overhead]
 
-# Plotting the overhead percentages
-x = np.arange(len(metrics))  # the label locations
-width = 0.25  # the width of the bars
-
-fig, ax = plt.subplots(figsize=(10, 6))
-
-# Plot bars for each application
-rects1 = ax.bar(x - width, [overhead[0] for overhead in overhead_data], width, label='Temp-Sensor', color='darkred')
-rects2 = ax.bar(x, [overhead[1] for overhead in overhead_data], width, label='MaMBA', color='darkblue')
-rects3 = ax.bar(x + width, [overhead[2] for overhead in overhead_data], width, label='Contiki-MAC', color='darkgreen')
-
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Overhead (%)')
-# ax.set_title('VarLogger Overhead')
-ax.set_xticks(x)
-ax.set_xticklabels(metrics)
-ax.legend()
-
-# Add bar labels
-def add_bar_labels(bars):
-    for bar in bars:
-        yval = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, yval, f'{yval:.1f}', ha='center', va='bottom')
-
-add_bar_labels(rects1)
-add_bar_labels(rects2)
-add_bar_labels(rects3)
-
-# Adding horizontal grid lines
-# plt.grid(axis='y', linestyle='--', alpha=0.7)
-plt.title('Logging Mode ')
-plt.tight_layout()
-plt.show()
-
-###### Detection + logging overhead ######
 power_overhead_det = [(w - wo) / wo * 100 for w, wo in zip(power_with_det, power_without_log)]
 ram_overhead_det = [(w - wo) / wo * 100 for w, wo in zip(ram_with_det, ram_without_log)]
 source_overhead_det = [(w - wo) / wo * 100 for w, wo in zip(source_with_det, source_without_log)]
 
-# power_overhead_det = [w - wo for w, wo in zip(power_with_det, power_without_log)]
-# ram_overhead_det = [w - wo for w, wo in zip(ram_with_det, ram_without_log)]
-# source_overhead_det = [w - wo for w, wo in zip(source_with_det, source_without_log)]
-
 overhead_data_det = [power_overhead_det, ram_overhead_det, source_overhead_det]
-# Plotting the overhead percentages
-x = np.arange(len(metrics))  # the label locations
-width = 0.25  # the width of the bars
 
-fig, ax = plt.subplots(figsize=(10, 6))
+# #########################################################################################
 
-# Plot bars for each application
-rects1 = ax.bar(x - width, [overhead[0] for overhead in overhead_data_det], width, label='Temp-Sensor', color='darkred')
-rects2 = ax.bar(x, [overhead[1] for overhead in overhead_data_det], width, label='MaMBA', color='darkblue')
-rects3 = ax.bar(x + width, [overhead[2] for overhead in overhead_data_det], width, label='Contiki-MAC', color='darkgreen')
+########## Seperate plots for each mode ############################
 
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Overhead (%)')
-# ax.set_title('VarLogger Overhead')
-ax.set_xticks(x)
-ax.set_xticklabels(metrics)
-ax.legend()
+# # Plotting the overhead percentages
+# x = np.arange(len(metrics))  # the label locations
+# width = 0.25  # the width of the bars
 
-# Add bar labels
-def add_bar_labels(bars):
-    for bar in bars:
-        yval = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, yval, f'{yval:.1f}', ha='center', va='bottom')
+# fig, ax = plt.subplots(figsize=(10, 6))
 
-add_bar_labels(rects1)
-add_bar_labels(rects2)
-add_bar_labels(rects3)
+# # Plot bars for each application
+# rects1 = ax.bar(x - width, [overhead[0] for overhead in overhead_data], width, label='Temp-Sensor', color='darkred')
+# rects2 = ax.bar(x, [overhead[1] for overhead in overhead_data], width, label='MaMBA', color='darkblue')
+# rects3 = ax.bar(x + width, [overhead[2] for overhead in overhead_data], width, label='Contiki-MAC', color='darkgreen')
 
-# Adding horizontal grid lines
-# plt.grid(axis='y', linestyle='--', alpha=0.7)
-plt.title('Detection Mode')
-plt.tight_layout()
-plt.show()
-
-
-
-####################################################################################
-
-
-# ### Application wise plots: log vs det+log plots ###
+# # Add some text for labels, title and custom x-axis tick labels, etc.
+# ax.set_ylabel('Overhead (%)')
+# # ax.set_title('VarLogger Overhead')
+# ax.set_xticks(x)
+# ax.set_xticklabels(metrics)
+# ax.legend()
 
 # # Add bar labels
 # def add_bar_labels(bars):
@@ -288,33 +228,124 @@ plt.show()
 #         yval = bar.get_height()
 #         ax.text(bar.get_x() + bar.get_width()/2, yval, f'{yval:.1f}', ha='center', va='bottom')
 
-# ## Plotting separate figures for each application
-# for i, app_label in enumerate(app_labels):
-#     x = np.arange(len(metrics))  # Metric indices
-#     width = 0.35  # Bar width
-    
-#     fig, ax = plt.subplots(figsize=(10, 6))
+# add_bar_labels(rects1)
+# add_bar_labels(rects2)
+# add_bar_labels(rects3)
 
-#     # plt.figure(figsize=(8, 5))
-    
-#     # Bar plots
-#     rect1 = ax.bar(x - width / 2, [overhead_data[j][i] for j in range(len(metrics))], width, label='Logging', color='darkred')
-#     rect2 = ax.bar(x + width / 2, [overhead_data_det[j][i] for j in range(len(metrics))], width, label='Detection+Logging', color='darkblue')
-    
-#     add_bar_labels(rect1)
-#     add_bar_labels(rect2)
-#     # Titles and labels
-#     plt.title(app_label)
-#     plt.xticks(x, metrics)
-#     plt.ylabel('Overhead (%)')
-#     plt.xlabel('Metrics')
-#     # plt.grid(axis='y', linestyle='--', alpha=0.7)
-#     plt.legend()
-    
-#     # Adjust layout and display
-#     plt.tight_layout()
-#     plt.show()
+# # Adding horizontal grid lines
+# # plt.grid(axis='y', linestyle='--', alpha=0.7)
+# plt.title('Logging Mode ')
+# plt.tight_layout()
+# plt.show()
 
+# ###### Detection + logging overhead ######
+
+# # Plotting the overhead percentages
+# x = np.arange(len(metrics))  # the label locations
+# width = 0.25  # the width of the bars
+
+# fig, ax = plt.subplots(figsize=(10, 6))
+
+# # Plot bars for each application
+# rects1 = ax.bar(x - width, [overhead[0] for overhead in overhead_data_det], width, label='Temp-Sensor', color='darkred')
+# rects2 = ax.bar(x, [overhead[1] for overhead in overhead_data_det], width, label='MaMBA', color='darkblue')
+# rects3 = ax.bar(x + width, [overhead[2] for overhead in overhead_data_det], width, label='Contiki-MAC', color='darkgreen')
+
+# # Add some text for labels, title and custom x-axis tick labels, etc.
+# ax.set_ylabel('Overhead (%)')
+# # ax.set_title('VarLogger Overhead')
+# ax.set_xticks(x)
+# ax.set_xticklabels(metrics)
+# ax.legend()
+
+# # Add bar labels
+# def add_bar_labels(bars):
+#     for bar in bars:
+#         yval = bar.get_height()
+#         ax.text(bar.get_x() + bar.get_width()/2, yval, f'{yval:.1f}', ha='center', va='bottom')
+
+# add_bar_labels(rects1)
+# add_bar_labels(rects2)
+# add_bar_labels(rects3)
+
+# # Adding horizontal grid lines
+# # plt.grid(axis='y', linestyle='--', alpha=0.7)
+# plt.title('Detection Mode')
+# plt.tight_layout()
+# plt.show()
+
+
+
+####################################################################################
+
+
+# ### Combined plot for logging and detection mode
+
+# Setup
+x = np.arange(len(metrics))  # Metric indices
+width = 0.15  # Width of each bar
+num_apps = len(app_labels)  # Number of applications
+colors = ['darkred', 'darkblue', 'darkgreen']
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Plot bars for each application and mode
+for i, app_label in enumerate(app_labels):
+    # Calculate positions for bars
+    pos_logging = x + (i - num_apps / 2) * 2 * width  # Logging bar positions
+    pos_detection = pos_logging + width               # Detection bar positions
+
+    # Logging mode bars
+    rect1 = ax.bar(
+        pos_logging,
+        [overhead[i] for overhead in overhead_data],
+        width,
+        label=f'{app_label} - Logging Mode',
+        # color=f'C{i}',
+        color=colors[i],
+        hatch='//',
+        alpha=0.5
+    )
+    # Detection mode bars
+    rect2 = ax.bar(
+        pos_detection,
+        [overhead_det[i] for overhead_det in overhead_data_det],
+        width,
+        label=f'{app_label} - Detection Mode',
+        # color=f'C{i}',
+        color=colors[i],
+        alpha=0.8
+    )
+
+    # Add labels to bars
+    def add_bar_labels(bars, data):
+        for bar, value in zip(bars, data):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height(),
+                f'{value:.1f}',
+                ha='center',
+                va='bottom',
+                # fontsize=9
+            )
+
+    add_bar_labels(rect1, [overhead[i] for overhead in overhead_data])
+    add_bar_labels(rect2, [overhead_det[i] for overhead_det in overhead_data_det])
+
+# Titles and labels
+ax.set_title('Overhead Comparison for Logging and Detection modes Across Applications', fontsize=16)
+ax.set_xticks(x)
+ax.set_xticklabels(metrics,fontsize=16)
+ax.set_ylabel('Overhead (%)', fontsize=16)
+ax.set_xlabel('Metrics', fontsize=16)
+
+# Add legend
+ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25 ), ncol=3)  #fontsize='medium',
+
+# Grid and layout
+ax.yaxis.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
 
 
 #########################################################################################
@@ -381,7 +412,7 @@ ax.set_ylabel('Overhead (%)', fontsize=18)
 ax.set_xlabel('Metrics', fontsize=18)
 
 # Add legend
-ax.legend(fontsize='small')
+ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.25 ), ncol=3)  #fontsize='medium',
 
 # Grid and layout
 ax.yaxis.grid(True, linestyle='--', alpha=0.7)
