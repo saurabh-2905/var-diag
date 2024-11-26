@@ -140,10 +140,11 @@ class exeInt:
                 sample_data = read_traces(sample_path)
                 print(sample_path)
             filename = sample_path.split('/')[-1].split('.')[0]
-            # print(sample_data)
+            # print('sample_data', sample_data)
             ### collect timestamps for all variables
             timestamps = {}
             for i, event in enumerate(sample_data):
+                # print('event:', event)
                 var, ts = event
                 ts = int(ts)
                 # print(var, ts)
@@ -338,7 +339,7 @@ class exeInt:
         return dedup_detection, aggregated_ts
     
 
-    def merge_detections(self, detections, diff_val=2):
+    def merge_detections(self, detections, diff_val=5):
         '''
         This fucntions merges multiple detections that are less the 2 seconds apart. 
         These multiple detections can be caused because of multiple variables or even multiple anomalies that are colser
