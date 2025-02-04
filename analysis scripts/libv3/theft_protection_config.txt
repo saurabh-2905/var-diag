@@ -1,4 +1,4 @@
 CODE = theft_protection       ### application (code)
-BEHAVIOUR = faulty_data            ### normal, faulty_data
+BEHAVIOUR = normal            ### normal, faulty_data
 THREAD = single           ### single, multi
-VER = 3                     ### format of data collection
+VER = 4                    ### format of data collection
