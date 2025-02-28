@@ -27,24 +27,19 @@ To add the logging command `log()` in the source code, one needs to make sure th
 
 ```python
 import lib.varlogger as vl
+
+vl.log(var=<variable name>, fun='main', clas='0', th=<thread ID>)
 ```
-
-*Usage Example*
-
-```python
-# list for measurements values
-que = []
-vl.log(var='que', fun='main', clas='0', th=<thread_id>)
-```
-The `log` command should be added after every line of the code that contains user defined variable. This ensure that entire code is reachable. 
-
-> **_NOTE:_** *We are currently working on the tool to automate the code instrumentation process. This tool will take the source code as input and will output the instrumented code where log statements are inserted.* 
 
 `log()` command takes four input arguments. `var`: is the variable name of the user defined variable in the previous line of code; `fun`: is the name of the function to which the previous line of code belongs; `cls`: is the name of the class to which it belongs; `th`: is the thread id to which it belongs.
 
 > Incase there is no valid input for any argument the default value is `0`
 
-[Temp-Sensor](https://github.com/saurabh-2905/TempSensor/tree/main/transmitter) is one of the use cases, where VarLogger is integrated to detect anomales during runtime. 
+The `log` command should be added after every line of the code that contains user defined variable. This ensure that entire code is reachable. 
+
+[Temp-Sensor](https://github.com/saurabh-2905/TempSensor/tree/main/transmitter) is one of the use cases, where VarLogger is integrated to detect anomales during runtime. Please refer to the source code to see usage of `vl.log()`
+
+> **_NOTE:_** *We are currently working on the tool to automate the code instrumentation process. This tool will take the source code as input and will output the instrumented code where log statements are inserted.* 
 
 ## Feature Extractor
 TODO
