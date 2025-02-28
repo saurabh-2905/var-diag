@@ -47,5 +47,7 @@ The `log` command should be added after every line of the code that contains use
 [Temp-Sensor](https://github.com/saurabh-2905/TempSensor/tree/main/transmitter) is one of the use cases, where VarLogger is integrated to detect anomales during runtime. 
 
 ## Feature Extractor
+TODO
 
 ## Runtime Detection
+TODO
