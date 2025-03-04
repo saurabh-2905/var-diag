@@ -28,7 +28,10 @@ To add the logging command `log()` in the source code, one needs to make sure th
 ```python
 import lib.varlogger as vl
 
-vl.log(var=<variable name>, fun='main', clas='0', th=<thread ID>)
+vl.log(var=<variable name>, 
+        fun=<function name>, 
+        clas=<class name>, 
+        th=<thread ID>)
 ```
 
 `log()` command takes four input arguments. `var`: is the variable name of the user defined variable in the previous line of code; `fun`: is the name of the function to which the previous line of code belongs; `cls`: is the name of the class to which it belongs; `th`: is the thread id to which it belongs.
