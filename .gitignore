@@ -1,5 +1,6 @@
 .ipynb_checkpoints
 venv
+/**/*env
 .DS_Store
 .huskyrc.json
 out
@@ -179,3 +180,4 @@ iot-api-apps/
 Sensorboard_2021*
 events.db
 results/
+logs*
