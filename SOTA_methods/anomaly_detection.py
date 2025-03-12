@@ -55,44 +55,99 @@ def test_single(file_path, model, sequence_length):
     return anomalies
    
     
-def merge_detections(detections, diff_val=5):
-    '''
-    Merge detections that are within a certain time difference
-    :param all_detections: list of tuples (filename, detections, labels) where detections is a list of tuples (id, timestamp)
-    :param diff_val: time difference in seconds
-    :return: list of merged detections
-    '''
-    sorted_detections = sorted(detections, key=lambda x: x[1])
-    timestamps = [x[1] / 1000 for x in sorted_detections]  # Convert to seconds
+def merge_detections(self, detections, diff_val=5):
+        '''
+        This fucntions merges multiple detections that are less the 2 seconds apart. 
+        These multiple detections can be caused because of multiple variables or even multiple anomalies that are colser
+        Each anomaly that occurs, affects group of variables, resulting in multiple detections for single ground truth
+        This function groups the detections based on the time difference between them and selects one from each group
 
-    merged_detections = []
-    current_group = []
+        detections: list of detected anomalies -> list -> in format: [[(var1, 0), (ts1, ts2), filename], [(var2, 0), (ts1, ts2), filename], ....]
+        diff_val: time difference threshold in seconds to group detections -> int/float
 
-    for i, detection in enumerate(sorted_detections):
-        if not current_group:
-            current_group.append(detection)
-        else:
-            prev_ts = timestamps[i - 1]
-            curr_ts = timestamps[i]
-            if abs(curr_ts - prev_ts) <= diff_val:
-                current_group.append(detection)
+        return:
+        dedup_detection: list of deduplicated detections -> list
+        '''
+        DIFF_VAL = diff_val
+        pred = detections
+        ### sort the list using the first timestamp of every detection
+        pred = sorted(pred, key=lambda x: x[1][0])
+        print('sorted detecions:', pred)
+        det_ts1 = [ x[1][0]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
+        det_ts2 = [ x[1][1]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
+        # print('merge ts:', pred[0][1], det_ts1[0], det_ts2[0])
+        group = []
+        group_ind = []
+        aggregated_ts = []
+        aggregated_ts_ind = []
+        ymax = 0
+        cond1 = False
+        cond2 = False
+        for xi, (x1, x2, y1, y2) in enumerate(zip(det_ts1[0:-1], det_ts1[1:], det_ts2[0:-1], det_ts2[1:])):    ### get the first and last timestamp of every detection
+            # print(xi)
+            ### diff between start points of two detections
+            # diff_ts1 = abs(x2 - x1)
+            ### diff between start of first detection and end of second detection
+            if y1 > ymax:
+                ymax = y1
+                
+            if group != []:
+                cond1 = x2 < ymax
             else:
-                ts_start = current_group[0][1]
-                ts_end = current_group[-1][1]
-                id_start = current_group[0][0]
-                filename = current_group[0][2]
-                merged_detections.append([(id_start, 0), (ts_start, ts_end), filename])
-                current_group = [detection]
+                cond1 = x2 < y1
+            diff_ts2 = abs(x2 - y1)
+            cond2 = diff_ts2 <= DIFF_VAL
+            # print('Merge diff:', diff_ts1, x1, x2)
+            ### decision to wether or not group detections. If the difference between the detections is less than diff_val seconds, then group them
+            ### if the difference between the detections is more than diff_val seconds, 
+            ### then check if the second detection has started before first detection ends or 
+            ### the second detecion starts withing diff_val seconds from end of rist detection. If yes, then group them
+            if cond1 or cond2:
+                group += [pred[xi]]
+                group_ind += [xi]
+                if xi == len(det_ts1)-2:  ### for last pair
+                    group += [pred[xi+1]]
+                    group_ind += [xi+1]
+                    aggregated_ts_ind += [group_ind]
+                    aggregated_ts += [group]
+                ### store the highest ts that shows end of the groupped detections
+            else:
+                group_ind += [xi]
+                group += [pred[xi]]   ### group the predictions which have time diff less than 2 seconds
+                # print(group)
+                aggregated_ts_ind += [group_ind]   
+                aggregated_ts += [group]    ### collect all the groups
+                group = []
+                ymax = 0
+                if xi == len(det_ts1)-2:   ### for last pair
+                    group += [pred[xi+1]]
+                    group_ind += [xi+1]
+                    aggregated_ts_ind += [group_ind]
+                    aggregated_ts += [group]
 
-    if current_group:
-        ts_start = current_group[0][1]
-        ts_end = current_group[-1][1]
-        id_start = current_group[0][0]
-        filename = current_group[0][2]
-        merged_detections.append([(id_start, 0), (ts_start, ts_end), filename])
+        ### merge the detections (starting TS from first detection and ending TS from last detection from each group)
+        merge_detection = []
+        for gp in aggregated_ts:    #### read single group of detections. in format list of detections
+            ### sort the detections in ascending order based on the first timestamp
+            gp = sorted(gp, key=lambda x: x[1][0])
+            #### scan through the group and get the lowest first timestamp and highest last timestamp
+            lowest_ts = gp[0][1][0]
+            highest_ts = gp[-1][1][1]
+            first_event = gp[0][0][0]
+            last_event = gp[-1][0][0]
+            for i, (_, gts, _) in enumerate(gp):
+                if gts[0] < lowest_ts:
+                    lowest_ts = gts[0]
+                    first_event = gp[i][0][0]
+                if gts[1] > highest_ts:
+                    highest_ts = gts[1]
+                    last_event = gp[i][0][0]
 
-    return merged_detections
 
+            merge_detection += [[(first_event, last_event), (lowest_ts, highest_ts), gp[0][2]]]    
+            ### eg. [(10, 8), (27249, 30675), 'trace2-sensor'], where first tuple contains variable of first and last detection in group, second tuple is the first TS of first detection and second ts of last detection, and the file name is taken from first detection
+
+        return merge_detection, aggregated_ts
 
 
 def bbox_iou(b1_x1, b1_x2, b2_x1, b2_x2,):
@@ -370,7 +425,7 @@ def load_data_separate_sequence(file_paths):
 
 
 
-def test_single_id_timestamp(file_path, id_model, timestamp_model, sequence_length):
+def test_single_id_timestamp(file_path, id_model, timestamp_model, sequence_length, allowed_time_error=20):
     """
     Test a single test data file with trained LSTM models to detect anomalies in ID and timestamp difference sequences.
 
@@ -386,6 +441,9 @@ def test_single_id_timestamp(file_path, id_model, timestamp_model, sequence_leng
     id_data = id_data[0]
     timestamp_data = timestamp_data[0]
     actual_timestamps = actual_timestamps[0]
+    # print('id_data', id_data)
+    # print('test_timesatmp', timestamp_data)
+    # print('actual_timestamps', actual_timestamps)
 
     # Prepare sequences for the ID model
     X_test_id, y_test_id = [], []
@@ -409,27 +467,42 @@ def test_single_id_timestamp(file_path, id_model, timestamp_model, sequence_leng
     id_errors = np.abs(id_predictions.flatten() - y_test_id.flatten())
     timestamp_errors = np.abs(timestamp_predictions.flatten() - y_test_timestamp.flatten())
 
-    # Detect anomalies for ID model
+    # # Detect anomalies for ID model
+    # for i in range(len(id_errors)):
+    #     if id_errors[i] > 0:
+    #         anomaly_index = (i * sequence_length) + sequence_length
+    #         if anomaly_index < len(id_data):
+    #             anomalies.append([
+    #                 anomaly_index,  # Detected ID
+    #                 actual_timestamps[anomaly_index],  
+    #                 os.path.basename(file_path)
+    #             ])
+
+    # # Detect anomalies for Timestamp Difference model
+    # for i in range(len(timestamp_errors)):
+    #     if timestamp_errors[i] > allowed_time_error:
+    #         anomaly_index = (i * sequence_length) + sequence_length
+    #         if anomaly_index < len(timestamp_data):
+    #             anomalies.append([
+    #                 anomaly_index,  # Detected ID
+    #                 actual_timestamps[anomaly_index],  
+    #                 os.path.basename(file_path)
+    #             ])               
+
     for i in range(len(id_errors)):
         if id_errors[i] > 0:
             anomaly_index = (i * sequence_length) + sequence_length
             if anomaly_index < len(id_data):
-                anomalies.append([
-                    anomaly_index,  # Detected ID
-                    actual_timestamps[anomaly_index],  
-                    os.path.basename(file_path)
-                ])
-
-    # Detect anomalies for Timestamp Difference model
-    for i in range(len(timestamp_errors)):
-        if timestamp_errors[i] > 0:
-            anomaly_index = (i * sequence_length) + sequence_length
-            if anomaly_index < len(timestamp_data):
-                anomalies.append([
-                    anomaly_index,  # Detected ID
-                    actual_timestamps[anomaly_index],  
-                    os.path.basename(file_path)
-                ])               
+                ub = actual_timestamps[anomaly_index]
+                lb =  ub-15000
+                anomalies.append([(0, y_test_id), (lb, ub), os.path.basename(file_path)])
+        else:
+            if timestamp_errors[i] > allowed_time_error:
+                anomaly_index = (i * sequence_length) + sequence_length
+                if anomaly_index < len(timestamp_data):
+                    ub = actual_timestamps[anomaly_index]
+                    lb =  ub-15000
+                    anomalies.append([(0, y_test_id), (lb, ub), os.path.basename(file_path)])
 
     print("\nAnomalies detected:", anomalies)
     return anomalies    
