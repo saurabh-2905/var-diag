@@ -51,7 +51,7 @@ def get_config(file_name='theft_protection_config'):
     print(f'CODE: {CODE}')
     print(f'BEHAVIOUR: {BEHAVIOUR}')
     print(f'THREAD: {THREAD}')
-    print(f'VER: {VER}')
+    # print(f'VER: {VER}')
 
     return CODE, BEHAVIOUR, THREAD, VER
 
