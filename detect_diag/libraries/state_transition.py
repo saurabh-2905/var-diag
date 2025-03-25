@@ -9,6 +9,7 @@ class StateTransition:
 
     def __init__(self):
         self.transitions = defaultdict(list)
+        self.transitions_10 = defaultdict(list)
 
 
     def train(self, file_paths):
@@ -33,6 +34,38 @@ class StateTransition:
                 # print(var1, var2)
                 if var2 not in self.transitions[var1]:
                     self.transitions[var1].append(var2)
+        
+        #write_to_csv(self.transitions, 'state_transition')
+        with open('transitions_st.json', 'w') as f:
+            json.dump(self.transitions, f)
+
+    def train10(self, file_paths):
+        '''
+        file_paths -> list: 
+            complete path to the sample data files (.npy)
+        '''
+        for sample_path in file_paths:
+            if sample_path.find('.npy') != -1:
+                sample_data = load_sample(sample_path)
+                print(sample_path)
+            elif sample_path.find('.json') != -1:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
+            else:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
+
+            for i in range(0, len(sample_data)-11, 1):
+                seq1 = sample_data[i:i+10]
+                seq2 = sample_data[i+10:i+11]
+
+                var_seq1 = [x[0] for x in seq1]
+                var_seq2 = [x[0] for x in seq2]
+                var_seq1 = ','.join(var_seq1)
+                # var_seq2 = ','.join(var_seq2)
+
+                if var_seq2 not in self.transitions_10[var_seq1]:
+                    self.transitions_10[var_seq1].append(var_seq2)
         
         #write_to_csv(self.transitions, 'state_transition')
         with open('transitions_st.json', 'w') as f:
