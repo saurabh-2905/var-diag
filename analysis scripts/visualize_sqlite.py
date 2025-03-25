@@ -190,7 +190,7 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Select Detection Model to Vizualize Predictions:"),
-    dcc.Dropdown(['st_predictions', 'ei_predictions'], None, id='detection_model'),
+    dcc.Dropdown(['st_predictions', 'ei_predictions', 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'lstm+cn_predictions,', 'clustering_predictions'], None, id='detection_model'),
 
     html.Br(),
     html.H4("Select Subset of Predictions:"),
@@ -277,6 +277,10 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     predictions_path_st_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_fp_st_detections_{diff_val}.json']
     # print('var_list_path_ET', varlist_path)
 
+    predictions_path_st10 = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_st10_detections_{diff_val}.json']
+    predictions_path_st10_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_tp_st10_detections_{diff_val}.json']
+    predictions_path_st10_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_fp_st10_detections_{diff_val}.json']
+
     ############# check varlist is consistent ############
     ############# only for version 3 ######################
 
@@ -357,6 +361,24 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
                     predictions = prepare_detections(predictions_path_st_fp, timestamps)
                 else:
                     print('Prediction file does not exist')
+        elif 'st10_predictions' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_st10[0]):
+                    predictions = prepare_detections(predictions_path_st10, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_st10_tp[0]):
+                    predictions = prepare_detections(predictions_path_st10_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_st10_fp[0]):
+                    predictions = prepare_detections(predictions_path_st10_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+        else:
+            print('{} not found'.format(detection_model))
 
     fig = plot_single_trace(selected_df, 
                             y_ticks,
