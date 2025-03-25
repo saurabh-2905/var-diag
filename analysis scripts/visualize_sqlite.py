@@ -190,7 +190,7 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Select Detection Model to Vizualize Predictions:"),
-    dcc.Dropdown(['st_predictions', 'ei_predictions', 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'lstm+cn_predictions,', 'clustering_predictions'], None, id='detection_model'),
+    dcc.Dropdown(['st_predictions', 'ei_predictions', 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'forecaster_predictions,', 'clustering_predictions'], None, id='detection_model'),
 
     html.Br(),
     html.H4("Select Subset of Predictions:"),
@@ -280,6 +280,18 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     predictions_path_st10 = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_st10_detections_{diff_val}.json']
     predictions_path_st10_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_tp_st10_detections_{diff_val}.json']
     predictions_path_st10_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_fp_st10_detections_{diff_val}.json']
+
+    predictions_path_lstm = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/lstm_detections/trace_trial{TRIAL}_lstm_detections_{diff_val}.json']
+    predictions_path_lstm_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/lstm_detections/trace_trial{TRIAL}_tp_lstm_detections_{diff_val}.json']
+    predictions_path_lstm_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/lstm_detections/trace_trial{TRIAL}_fp_lstm_detections_{diff_val}.json']
+
+    predictions_path_gru = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/gru_detections/trace_trial{TRIAL}_gru_detections_{diff_val}.json']
+    predictions_path_gru_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/gru_detections/trace_trial{TRIAL}_tp_gru_detections_{diff_val}.json']
+    predictions_path_gru_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/gru_detections/trace_trial{TRIAL}_fp_gru_detections_{diff_val}.json']
+
+    predictions_path_forecaster = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/forecaster_detections/trace_trial{TRIAL}_forecaster_detections_{diff_val}.json']
+    predictions_path_forecaster_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/forecaster_detections/trace_trial{TRIAL}_tp_forecaster_detections_{diff_val}.json']
+    predictions_path_forecaster_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/forecaster_detections/trace_trial{TRIAL}_fp_forecaster_detections_{diff_val}.json']
 
     ############# check varlist is consistent ############
     ############# only for version 3 ######################
@@ -375,6 +387,54 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
             elif 'fp_predict' in detection_subset:
                 if os.path.exists(predictions_path_st10_fp[0]):
                     predictions = prepare_detections(predictions_path_st10_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+        elif'forecaster_predictions' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_forecaster[0]):
+                    predictions = prepare_detections(predictions_path_forecaster, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_forecaster_tp[0]):
+                    predictions = prepare_detections(predictions_path_forecaster_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_forecaster_fp[0]):
+                    predictions = prepare_detections(predictions_path_forecaster_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+        elif 'lstm_predictions' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_lstm[0]):
+                    predictions = prepare_detections(predictions_path_lstm, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_lstm_tp[0]):
+                    predictions = prepare_detections(predictions_path_lstm_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_lstm_fp[0]):
+                    predictions = prepare_detections(predictions_path_lstm_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+        elif 'gru_predictions' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_gru[0]):
+                    predictions = prepare_detections(predictions_path_gru, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_gru_tp[0]):
+                    predictions = prepare_detections(predictions_path_gru_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_gru_fp[0]):
+                    predictions = prepare_detections(predictions_path_gru_fp, timestamps)
                 else:
                     print('Prediction file does not exist')
         else:

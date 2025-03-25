@@ -112,7 +112,7 @@ def test_single_id(file_path, model, sequence_length, scaler):
     predictions = model.predict(X_test)                               # Make predictions
 
     predictions = np.round(predictions).astype(int)
-    print("predictions :", predictions)
+    # print("predictions :", predictions)
 
     end_time = time.time()
     inference_time = (end_time - start_time) * 1000 # inference time in ms
@@ -124,11 +124,12 @@ def test_single_id(file_path, model, sequence_length, scaler):
             anomaly_seq_start_index = 0 if  i == 0  else anomaly_seq_end_ind - sequence_length + 1
 
             if anomaly_seq_end_ind < len(test_data):
-                anomalies.append([
+                _anomaly = [
                     (test_data[anomaly_seq_start_index][0], test_data[anomaly_seq_end_ind][0]),
                     (test_data[anomaly_seq_start_index][1], test_data[anomaly_seq_end_ind][1]),
                     os.path.basename(file_path)
-                ])
+                ]
+                anomalies.append(_anomaly)
           
     return anomalies, inference_time
 
