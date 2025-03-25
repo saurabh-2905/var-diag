@@ -55,21 +55,26 @@ class StateTransition:
                 sample_data = read_traces(sample_path)
                 print(sample_path)
 
-            for i in range(0, len(sample_data)-11, 1):
-                seq1 = sample_data[i:i+10]
-                seq2 = sample_data[i+10:i+11]
+            for i in range(0, len(sample_data)-20, 1):
+                seq1 = sample_data[i:i+19]
+                seq2 = sample_data[i+19:i+20]
+                # print(seq1, seq2)
 
                 var_seq1 = [x[0] for x in seq1]
                 var_seq2 = [x[0] for x in seq2]
+                var_seq1 = [str(x) for x in var_seq1]
                 var_seq1 = ','.join(var_seq1)
-                # var_seq2 = ','.join(var_seq2)
+                var_seq2 = var_seq2[0]
 
-                if var_seq2 not in self.transitions_10[var_seq1]:
-                    self.transitions_10[var_seq1].append(var_seq2)
+                if var_seq1 not in self.transitions_10.keys():
+                    self.transitions_10[var_seq1] = [var_seq2]
+                else:
+                    if var_seq2 not in self.transitions_10[var_seq1]:
+                        self.transitions_10[var_seq1].append(var_seq2)
         
         #write_to_csv(self.transitions, 'state_transition')
-        with open('transitions_st.json', 'w') as f:
-            json.dump(self.transitions, f)
+        with open('transitions_st10.json', 'w') as f:
+            json.dump(self.transitions_10, f)
 
     def test(self, file_paths):
         '''
@@ -169,6 +174,82 @@ class StateTransition:
                 # anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(sample_path)]]
                 anomalies += [[(var1, var2), (ts1, ts2), os.path.basename(file_path)]]
                 detected_anomaly = False
+        return anomalies
+    
+
+    def test_single_10(self, file_path):
+        '''
+        file_paths -> str: 
+            complete path to the sample data file (.npy)
+        '''
+
+        if 'transitions_st10.json' in os.listdir():
+            with open('transitions_st10.json', 'r') as f:
+                transitions = json.load(f)
+        else:
+            raise(RuntimeError('Transition table missing'))
+        
+        ### convert the keys from string to int
+        # trans_keys = list(transitions.keys())
+        # transitions_new = {}
+        # for key in trans_keys:
+        #     transitions_new[int(key)] = transitions[key]
+        # transitions = transitions_new
+        print(transitions)
+
+        anomalies = []
+        if file_path.find('.npy') != -1:
+            sample_data = load_sample(file_path)
+            print(file_path)
+        else:
+            sample_data = read_traces(file_path)
+            print(file_path)
+
+        # sample_data  = sample_data[0:500]  ### get only first 500 events for testing
+        detected_anomaly = False
+        # for event1, event2 in zip(sample_data[0:-1], sample_data[1:]):
+        #     #print(event1,event2)
+        #     var1, var2 = event1[0], event2[0]
+        #     ts1, ts2 = event1[1], event2[1]
+
+        #     ###check if var1 in transitions
+        #     if var1 not in transitions.keys():
+        #         detected_anomaly = True
+        #     else:
+        #         if var2 not in transitions[var1]:
+        #             detected_anomaly = True
+
+        #     if detected_anomaly:
+        #         print('Anomaly Detected:', [(var1, var2), (ts1, ts2), os.path.basename(file_path)])
+        #         # anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(sample_path)]]
+        #         anomalies += [[(var1, var2), (ts1, ts2), os.path.basename(file_path)]]
+        #         detected_anomaly = False
+
+        for i in range(0, len(sample_data)-20, 1):
+            seq1 = sample_data[i:i+19]
+            seq2 = sample_data[i+19:i+20]
+
+            var_seq1 = [x[0] for x in seq1]
+            var_seq2 = [x[0] for x in seq2]
+            var_seq1 = [str(x) for x in var_seq1]
+            var_seq1 = ','.join(var_seq1)
+            var_seq2 = var_seq2[0]
+
+            ts1 = seq1[-10][1]
+            ts2 = seq2[0][1]
+
+            if var_seq1 not in transitions.keys():
+                detected_anomaly = True
+            else:
+                if var_seq2 not in transitions[var_seq1]:
+                    detected_anomaly = True
+
+            if detected_anomaly:
+                print('Anomaly Detected:', [(var_seq1[-10], var_seq2), (ts1, ts2), os.path.basename(file_path)])
+                # anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(sample_path)]]
+                anomalies += [[(var_seq1[-10], var_seq2), (ts1, ts2), os.path.basename(file_path)]]
+                detected_anomaly = False
+
         return anomalies
     
 
