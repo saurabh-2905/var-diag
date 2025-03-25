@@ -1,4 +1,4 @@
 CODE = lora_ducy       ### application (code)
-BEHAVIOUR = normal            ### normal, faulty_data
+BEHAVIOUR = faulty_data            ### normal, faulty_data
 THREAD = single           ### single, multi
 VER = 3                     ### format of data collection
