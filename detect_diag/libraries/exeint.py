@@ -504,7 +504,7 @@ class exeInt:
 
                         
                         if cond_1 or cond_2 or cond_3 or cond_4:
-                            print(gt_ind, im, cond_1, cond_2, cond_3, cond_4)
+                            # print(gt_ind, im, cond_1, cond_2, cond_3, cond_4)
                             tmp_pred += [(im, pred, cond_1, cond_2, cond_3, cond_4)]    ### store all correct predictions that match with current gt      ### if cond_1 is TRUE, that means the detection is inside the gt and even multiple pred can be correct                  
 
                     if tmp_pred != []:
@@ -515,7 +515,7 @@ class exeInt:
                             # print('if:', tmp_pred)
                             iou_pred = []
                             for ip, pred, case_1, case_2, case_3, case_4 in tmp_pred:
-                                print('ip, pred', ip, pred)
+                                # print('ip, pred', ip, pred)
                                 state1, state2 = pred[0]
                                 pd_ts1, pd_ts2 = pred[1]
                                 filename = pred[2]
@@ -542,9 +542,9 @@ class exeInt:
                             if not perfect_pred:    ### skip selecting the best detection if there is a perfect detection (case 1)
                                 best_pred_ind = iou_pred.index(max(iou_pred))
                                 best_pred = tmp_pred[best_pred_ind]
-                                print('ground_truth', gt)
-                                print('best_pred:', best_pred)
-                                print('y_pred_ind:', y_pred_ind)
+                                # print('ground_truth', gt)
+                                # print('best_pred:', best_pred)
+                                # print('y_pred_ind:', y_pred_ind)
                                 # gt_pred[gt_ind] += [pred]  ### store the best detection for the given gt
                                 if best_pred[0] not in y_pred_ind:
                                     y_pred_ind += [best_pred[0]]
@@ -553,7 +553,7 @@ class exeInt:
                                     y_pred += [1]
                         else:
                             # print('else:', tmp_pred)
-                            print('y_pred_ind:', y_pred_ind)
+                            # print('y_pred_ind:', y_pred_ind)
                             if tmp_pred[0][0] not in y_pred_ind:
                                 y_pred_ind += [tmp_pred[0][0]]
                                 correct_pred += [tmp_pred[0][1]]  
