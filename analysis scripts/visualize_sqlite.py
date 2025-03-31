@@ -161,7 +161,7 @@ app.layout = dbc.Container([
     dcc.Dropdown(
         id='config-dropdown',
         options=[{'label': f"{row['code_base']} {row['version']} {row['behaviour']} {row['trial_num']}", 'value': row['id']} for _, row in config_df.iterrows()],
-        value=config_df['id'].iloc[0],
+        value=config_df['id'].iloc[22],
         clearable=False
         ),
 
@@ -190,7 +190,7 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Select Detection Model to Vizualize Predictions:"),
-    dcc.Dropdown(['st_predictions', 'ei_predictions', 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'forecaster_predictions,', 'clustering_predictions'], None, id='detection_model'),
+    dcc.Dropdown(['st_predictions', 'ei_predictions', 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'forecaster_predictions,', 'clustering_predictions', 'diag_AP2'], None, id='detection_model'),
 
     html.Br(),
     html.H4("Select Subset of Predictions:"),
@@ -198,7 +198,11 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Merge with diff_val (seconds):"),
-    dcc.Dropdown(['0', '1', '2', '5'], '2', id='diff_val'),
+    dcc.Dropdown(['0', '1', '2', '5'], '5', id='diff_val'),
+
+    html.Br(),
+    html.H4("Anomaly Seperation Method"),
+    dcc.Dropdown(['1', '2', '3', '4'], '1', id='anomaly_sep'),
 
     html.Br(),
     dcc.Loading(
@@ -234,9 +238,10 @@ app.layout = dbc.Container([
      Input('addons', 'value'),
      Input('detection_model', 'value'),
      Input('detection_subset', 'value'),
-     Input('diff_val', 'value')]
+     Input('diff_val', 'value'),
+     Input('anomaly_sep', 'value')]
 )
-def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset, diff_val):
+def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset, diff_val, anomaly_sep):
     session = Session()
     events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
     # print('events_query:', len(events_query))
@@ -265,6 +270,10 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
         diff_val = int(diff_val)
         # print('diff_val:', diff_val)
 
+    if anomaly_sep is not None:
+        anomaly_sep = int(anomaly_sep)
+        # print('anomaly_sep:', anomaly_sep)
+
     varlist_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/varlist_trial{TRIAL}.json']
     label_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/labels/trace_trial{TRIAL}_labels.json']
     
@@ -292,6 +301,11 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     predictions_path_forecaster = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/forecaster_detections/trace_trial{TRIAL}_forecaster_detections_{diff_val}.json']
     predictions_path_forecaster_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/forecaster_detections/trace_trial{TRIAL}_tp_forecaster_detections_{diff_val}.json']
     predictions_path_forecaster_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/forecaster_detections/trace_trial{TRIAL}_fp_forecaster_detections_{diff_val}.json']
+
+    predictions_path_diag = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/diag{anomaly_sep}_detections/trace_trial{TRIAL}_diag{anomaly_sep}_detections_{diff_val}.json']
+    predictions_path_diag_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/diag{anomaly_sep}_detections/trace_trial{TRIAL}_tp_diag{anomaly_sep}_detections_{diff_val}.json']
+    predictions_path_diag_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/diag{anomaly_sep}_detections/trace_trial{TRIAL}_fp_diag{anomaly_sep}_detections_{diff_val}.json']
+
 
     ############# check varlist is consistent ############
     ############# only for version 3 ######################
@@ -437,6 +451,23 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
                     predictions = prepare_detections(predictions_path_gru_fp, timestamps)
                 else:
                     print('Prediction file does not exist')
+        elif 'diag_AP2' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_diag[0]):
+                    predictions = prepare_detections(predictions_path_diag, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_diag_tp[0]):
+                    predictions = prepare_detections(predictions_path_diag_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_diag_fp[0]):
+                    predictions = prepare_detections(predictions_path_diag_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+
         else:
             print('{} not found'.format(detection_model))
 
