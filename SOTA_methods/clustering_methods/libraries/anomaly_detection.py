@@ -33,8 +33,12 @@ def detect_anomalies_knn(test_data_scaled, train_data, train_clusters, k):
     knn.fit(train_data)
 
     distance, i = knn.kneighbors(test_data_scaled)
+    # print("distance", distance)
+    # print("i", i)
 
     neighbor_clusters = train_clusters[i[0]]
+    # print("neighbor_clusters", neighbor_clusters)
+    ### check all three labels
     unique_cluster = np.unique(neighbor_clusters)
 
     if len(unique_cluster) != 1:
@@ -53,15 +57,15 @@ def extract_features_seglearn(traces):
 
     for i,trace in enumerate(traces):
         event_ids = np.array(trace[0]).reshape(1,-1,1)
-        timestamp_diffs = np.array(trace[1]).reshape(1,-1,1)
+        # timestamp_diffs = np.array(trace[1]).reshape(1,-1,1)
 
         feat_all = []
         for name in feature_names:
             func = funcs[name]
             feat_event = func(event_ids)
-            feat_time = func(timestamp_diffs)
+            # feat_time = func(timestamp_diffs)
             feat_all.extend(np.array(feat_event).reshape(-1,))
-            feat_all.extend(np.array(feat_time).reshape(-1,))
+            # feat_all.extend(np.array(feat_time).reshape(-1,))
 
         
         feature_vectors.append(feat_all)
@@ -69,7 +73,7 @@ def extract_features_seglearn(traces):
     final_feature_names = []
     for name in feature_names:
         final_feature_names.append(f"{name}_event")
-        final_feature_names.append(f"{name}_time")
+        # final_feature_names.append(f"{name}_time")
     print("final_feature_names",len(final_feature_names))
 
     return pd.DataFrame(feature_vectors, columns=final_feature_names)
@@ -89,7 +93,7 @@ def test_single_for_clustering(file_path, sequence_length,trained_features, trai
     event_ids = [item[0] for item in test_data]
     
     timestamps = [item[1] for item in test_data]
-    timestamp_difference = np.diff(timestamps).tolist()
+    # timestamp_difference = np.diff(timestamps).tolist()
     trimmed_event_ids = event_ids[1:]
 
     total_length = len(trimmed_event_ids)
@@ -98,13 +102,16 @@ def test_single_for_clustering(file_path, sequence_length,trained_features, trai
     for i in range(0, total_length, sequence_length):
         index_end = min(i + sequence_length, total_length)
         event_id_seq_len = trimmed_event_ids[i:index_end]
-        timestamp_diff_seq_len = timestamp_difference[i:index_end]
-        X_test.append([event_id_seq_len, timestamp_diff_seq_len])
+        # timestamp_diff_seq_len = timestamp_difference[i:index_end]
+        # X_test.append([event_id_seq_len, timestamp_diff_seq_len])
+        X_test.append([event_id_seq_len])
 
 
     # Feature extraction for test data
     X_test_df = extract_features_seglearn(X_test)
-    X_test_df_clean = X_test_df.dropna().reset_index(drop=True)
+    print("X_test_df", X_test_df)
+    X_test_df_clean = np.nan_to_num(X_test_df)
+    # X_test_df_clean = X_test_df.dropna().reset_index(drop=True)
 
     X_test_scaled = scaler.transform(X_test_df_clean)        
 
