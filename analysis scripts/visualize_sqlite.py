@@ -201,6 +201,10 @@ app.layout = dbc.Container([
     dcc.Dropdown(['0', '1', '2', '5'], '5', id='diff_val'),
 
     html.Br(),
+    html.H4("Window (if applicable):"),
+    dcc.Dropdown(['10', '20', '30', '50', '80', '500'], '10', id='window'),
+
+    html.Br(),
     html.H4("Anomaly Seperation Method"),
     dcc.Dropdown(['1', '2', '3', '4'], '1', id='anomaly_sep'),
 
@@ -239,9 +243,10 @@ app.layout = dbc.Container([
      Input('detection_model', 'value'),
      Input('detection_subset', 'value'),
      Input('diff_val', 'value'),
-     Input('anomaly_sep', 'value')]
+     Input('anomaly_sep', 'value'),
+     Input('window', 'value'),]
 )
-def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset, diff_val, anomaly_sep):
+def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset, diff_val, anomaly_sep, window):
     session = Session()
     events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
     # print('events_query:', len(events_query))
@@ -286,9 +291,9 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     predictions_path_st_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_fp_st_detections_{diff_val}.json']
     # print('var_list_path_ET', varlist_path)
 
-    predictions_path_st10 = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_st10_detections_{diff_val}.json']
-    predictions_path_st10_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_tp_st10_detections_{diff_val}.json']
-    predictions_path_st10_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st10_detections/trace_trial{TRIAL}_fp_st10_detections_{diff_val}.json']
+    predictions_path_st10 = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st{window}_detections/trace_trial{TRIAL}_st{window}_detections_{diff_val}.json']
+    predictions_path_st10_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st{window}_detections/trace_trial{TRIAL}_tp_st{window}_detections_{diff_val}.json']
+    predictions_path_st10_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st{window}_detections/trace_trial{TRIAL}_fp_st{window}_detections_{diff_val}.json']
 
     predictions_path_lstm = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/lstm_detections/trace_trial{TRIAL}_lstm_detections_{diff_val}.json']
     predictions_path_lstm_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/lstm_detections/trace_trial{TRIAL}_tp_lstm_detections_{diff_val}.json']
