@@ -252,7 +252,7 @@ def plot_single_trace(df,
     return:
     fig: plotly figure -> go.Figure
     '''
-    gt_colour_list = ['skyblue', 'lawngreen', 'goldenrod', 'teal', 'lightcoral', 'lightgray'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    gt_colour_list = ['skyblue', 'lawngreen', 'goldenrod', 'teal', 'lightcoral', 'burlywood'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
     dt_colour_list= ['red', 'lightslategray',]
     # Create figure
     fig = go.Figure()
@@ -601,7 +601,7 @@ def preprocess_variable_plotting(var_timestamps, var_list, from_number, trace_nu
 def plot_execution_interval_single(to_plot, 
                                     ground_truths=None, 
                                     is_xticks=False, 
-                                    gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt', 'expected behaviour'],
+                                    gt_classlist=['gt_communication', 'gt_sensor', 'gt_bitflip', 'gt_unhandled-interupt', 'expected behaviour', 'limit_broken'],
                                     detections=None,
                                     dt_classlist=['detection'],
                                     thresholds=None,
@@ -614,7 +614,7 @@ def plot_execution_interval_single(to_plot,
     fig_list: list of plotly figure objects -> list
     '''
     # CODE, BEHAVIOUR, THREAD, VER = get_config()
-    gt_colour_list = ['skyblue', 'blue', 'goldenrod', 'teal', 'lawngreen'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
+    gt_colour_list = ['skyblue', 'lawngreen', 'goldenrod', 'teal', 'lightcoral', 'burlywood'] ### , 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'
     dt_colour_list= ['red', 'lightslategray',]
 
     ### name represents the name of respective variable with which file will be saved
