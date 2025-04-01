@@ -9,7 +9,7 @@ class StateTransition:
 
     def __init__(self):
         self.transitions = defaultdict(list)
-        self.transitions_10 = defaultdict(list)
+        self.transitions_20 = defaultdict(list)
 
 
     def train(self, file_paths):
@@ -39,7 +39,7 @@ class StateTransition:
         with open('transitions_st.json', 'w') as f:
             json.dump(self.transitions, f)
 
-    def train10(self, file_paths):
+    def train20(self, file_paths, window=20):
         '''
         file_paths -> list: 
             complete path to the sample data files (.npy)
@@ -55,9 +55,9 @@ class StateTransition:
                 sample_data = read_traces(sample_path)
                 print(sample_path)
 
-            for i in range(0, len(sample_data)-20, 1):
-                seq1 = sample_data[i:i+19]
-                seq2 = sample_data[i+19:i+20]
+            for i in range(0, len(sample_data)-window, 1):
+                seq1 = sample_data[i:i+window-1]
+                seq2 = sample_data[i+window-1:i+window]
                 # print(seq1, seq2)
 
                 var_seq1 = [x[0] for x in seq1]
@@ -66,15 +66,15 @@ class StateTransition:
                 var_seq1 = ','.join(var_seq1)
                 var_seq2 = var_seq2[0]
 
-                if var_seq1 not in self.transitions_10.keys():
-                    self.transitions_10[var_seq1] = [var_seq2]
+                if var_seq1 not in self.transitions_20.keys():
+                    self.transitions_20[var_seq1] = [var_seq2]
                 else:
-                    if var_seq2 not in self.transitions_10[var_seq1]:
-                        self.transitions_10[var_seq1].append(var_seq2)
+                    if var_seq2 not in self.transitions_20[var_seq1]:
+                        self.transitions_20[var_seq1].append(var_seq2)
         
         #write_to_csv(self.transitions, 'state_transition')
-        with open('transitions_st10.json', 'w') as f:
-            json.dump(self.transitions_10, f)
+        with open(f'transitions_st{window}.json', 'w') as f:
+            json.dump(self.transitions_20, f)
 
     def test(self, file_paths):
         '''
@@ -177,14 +177,14 @@ class StateTransition:
         return anomalies
     
 
-    def test_single_10(self, file_path):
+    def test_single_20(self, file_path, window=20):
         '''
         file_paths -> str: 
             complete path to the sample data file (.npy)
         '''
 
-        if 'transitions_st10.json' in os.listdir():
-            with open('transitions_st10.json', 'r') as f:
+        if f'transitions_st{window}.json' in os.listdir():
+            with open(f'transitions_st{window}.json', 'r') as f:
                 transitions = json.load(f)
         else:
             raise(RuntimeError('Transition table missing'))
@@ -225,9 +225,9 @@ class StateTransition:
         #         anomalies += [[(var1, var2), (ts1, ts2), os.path.basename(file_path)]]
         #         detected_anomaly = False
 
-        for i in range(0, len(sample_data)-20, 1):
-            seq1 = sample_data[i:i+19]
-            seq2 = sample_data[i+19:i+20]
+        for i in range(0, len(sample_data)-window, 1):
+            seq1 = sample_data[i:i+window-1]
+            seq2 = sample_data[i+window-1:i+window]
 
             var_seq1 = [x[0] for x in seq1]
             var_seq2 = [x[0] for x in seq2]
