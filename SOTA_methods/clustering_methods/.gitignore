@@ -1,0 +1,4 @@
+/trace_data/
+/train_data_processed
+/test_data_processed
+/clustered_features_seglearn.csv
