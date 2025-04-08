@@ -196,6 +196,95 @@ class exeInt:
 
         return exe_list, filewise_exe_list
 
+    def get_eventint(self, train_data_path):
+        '''
+        train_data_path: list of paths to the training trace files -> list
+
+        return:
+        event_list: dictionary containing the execution intervals for each variable -> dict
+        filewise_event_list: dictionary containing the execution intervals for each variable for each file -> dict
+        '''
+        event_list = {}   ### {var1: [1,2,3,4,5,6,7,8,9,10], var2: [1,2,3,4,5,6,7,8,9,10], ....}
+        filewise_event_list = {}   ### {file1: {var1: [1,2,3,4,5,6,7,8,9,10], var2: [1,2,3,4,5,6,7,8,9,10], ....}, file2: {var1: [1,2,3,4,5,6,7,8,9,10], var2: [1,2,3,4,5,6,7,8,9,10], ....}, ....}
+        for sample_path in train_data_path:
+            # print(sample_path)
+            # sample_data = read_traces(sample_path)
+            if sample_path.find('.npy') != -1:
+                sample_data = load_sample(sample_path)
+                print(sample_path)
+            elif sample_path.find('.json') != -1:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
+            else:
+                sample_data = read_traces(sample_path)
+                print(sample_path)
+            filename = sample_path.split('/')[-1].split('.')[0]
+            # print('sample_data', sample_data)
+            ### collect indices for all variables
+            indices = {}
+            for i, event in enumerate(sample_data):
+                # print('event:', event)
+                var, ts = event
+                ts = int(ts)
+                # print(var, ts)
+                if var not in indices.keys():
+                    indices[var] = [i]
+                else:
+                    indices[var].append(i)
+
+            # print(indices.keys())
+
+            ### get the event intervals for all variables
+            intervals = {}
+            for key in indices.keys():
+                ind_list = indices[key]
+                for id1, id2 in zip(ind_list[:-1], ind_list[1:]):
+                    event_int = id2 - id1
+                    # print(key, id1,id2)
+
+                    ### for filewise exe_list
+                    if key not in intervals.keys():
+                        intervals[key] = [event_int]
+                    else:
+                        intervals[key].append(event_int)
+
+                    ### overall exe list
+                    if key not in event_list.keys():
+                        event_list[key] = [event_int]
+                    else:
+                        event_list[key].append(event_int)
+
+            filewise_event_list[filename] = intervals
+        
+        ### remove the variable if it has less than 3 execution intervals to avoid problem with lof
+        for k in intervals.keys():
+            if k in event_list.keys():
+                cont_chk = event_list[k]
+                if len(cont_chk) <= 3:  
+                    del event_list[k]
+                    event_list[k] = [0.0, 0.0, 0.0]    ### add 0.0 to avoid problem with lof
+            else:
+                event_list[k] = [0.0, 0.0, 0.0]
+
+        return event_list, filewise_event_list
+
+    def get_eventrange(self, event_list):
+        '''
+        event_list: dictionary containing the execution intervals for each variable for all files -> dict
+
+        return:
+        eventrange: dictionary containing the min and max values for each variable -> dict
+        '''
+        event_range = {}
+        for key in event_list.keys():
+            data = event_list[key]
+            min_ind = min(data)
+            max_ind = max(data)
+            event_range[key] = [min_ind, max_ind]
+        return event_range
+
+
+
 
     def test_single(self, sample_path, thresholds=None, lof_models=None):
         '''
