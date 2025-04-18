@@ -87,11 +87,11 @@ pip install tensorflow numpy pandas scikit-learn matplotlib
      jupyter notebook LSTM_Model.ipynb
      ```
    - Once the notebook is opened:
-   1. Execute each cell in order to preprocess the data, train the model and evaluate results.
-   2. Make sure all the dependencies are installed. The required libraries can be installed via the below command.
-      ```bash
-      pip install -r requirements.txt
-      ```
+      1. Execute each cell in order to preprocess the data, train the model and evaluate results.
+      2. Make sure all the dependencies are installed. The required libraries can be installed via the below command.
+         ```bash
+         pip install -r requirements.txt
+         ```
 
 4. **Train the Model**:
    - The notebook will handle the training process:
