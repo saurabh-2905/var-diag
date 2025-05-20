@@ -295,6 +295,7 @@ class exeInt:
         detected_anomalies: list of detected anomalies -> list
         '''
         detected_anomalies = []
+        affected_vars = []
         sample_data = read_traces(sample_path)
         # sample_data  = sample_data[0:500]    ### get only first 500 events for testing
         filename = sample_path.split('/')[-1].split('.')[0]
@@ -343,9 +344,8 @@ class exeInt:
                             # detected_anomalies += [[(var,0), (lb, ub), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST
                             # print('clipped:', (var_tracking[var][-2] - var_tracking[var][-1]), 'to:', (lb - ub))
                             lb = max(var_tracking[var][-1]-(thresholds[var][1]*1000*1.5), var_tracking[var][-1]-15000)
-                            detected_anomalies += [[(var,0), (lb, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
-                            
-                            # detected_anomalies += [[(var,0), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
+                            detected_anomalies += [[(var, exe_time), (lb, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST
+                            # detected_anomalies += [[(var, exe_time), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
                 
                 if lof_models != None:
                     ### check if exe_time is an outlier
@@ -428,7 +428,7 @@ class exeInt:
         return dedup_detection, aggregated_ts
     
 
-    def merge_detections(self, detections, diff_val=5):
+    def merge_detections(self, detections, diff_val=5, get_exetime=False):
         '''
         This fucntions merges multiple detections that are less the 2 seconds apart. 
         These multiple detections can be caused because of multiple variables or even multiple anomalies that are colser
@@ -445,7 +445,7 @@ class exeInt:
         pred = detections
         ### sort the list using the first timestamp of every detection
         pred = sorted(pred, key=lambda x: x[1][0])
-        print('sorted detecions:', pred)
+        # print('sorted detecions:', pred)
         det_ts1 = [ x[1][0]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
         det_ts2 = [ x[1][1]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
         # print('merge ts:', pred[0][1], det_ts1[0], det_ts2[0])
@@ -500,6 +500,7 @@ class exeInt:
 
         ### merge the detections (starting TS from first detection and ending TS from last detection from each group)
         merge_detection = []
+        affected_events = []
         for gp in aggregated_ts:    #### read single group of detections. in format list of detections
             ### sort the detections in ascending order based on the first timestamp
             gp = sorted(gp, key=lambda x: x[1][0])
@@ -508,19 +509,23 @@ class exeInt:
             highest_ts = gp[-1][1][1]
             first_event = gp[0][0][0]
             last_event = gp[-1][0][0]
-            for i, (_, gts, _) in enumerate(gp):
+            all_ges = []
+            for i, (ges, gts, _) in enumerate(gp):
+                all_ges += [ges]
                 if gts[0] < lowest_ts:
                     lowest_ts = gts[0]
                     first_event = gp[i][0][0]
                 if gts[1] > highest_ts:
                     highest_ts = gts[1]
                     last_event = gp[i][0][0]
-
+            affected_events += [all_ges]
 
             merge_detection += [[(first_event, last_event), (lowest_ts, highest_ts), gp[0][2]]]    
             ### eg. [(10, 8), (27249, 30675), 'trace2-sensor'], where first tuple contains variable of first and last detection in group, second tuple is the first TS of first detection and second ts of last detection, and the file name is taken from first detection
-
-        return merge_detection, aggregated_ts
+        if get_exetime == False:
+            return merge_detection, aggregated_ts
+        else:
+            return merge_detection, aggregated_ts, affected_events
 
 
     def bbox_iou(self, b1_x1, b1_x2, b2_x1, b2_x2,):
