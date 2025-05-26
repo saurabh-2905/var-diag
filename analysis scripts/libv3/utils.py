@@ -715,53 +715,66 @@ def plot_execution_interval_single(to_plot,
                 )
             
                 if thresholds != None:
+                    toplot_thresh = []
                     if var_name not in thresholds.keys():
                         lower_th = 0
                         upper_th = 1000
+                        toplot_thresh += [(var_name, lower_th, upper_th)]
                     else:
-                        lower_th, upper_th = thresholds[var_name]
-                        lower_th *= 1000
-                        upper_th *= 1000
-                    print('plot fun:', var_name, lower_th, upper_th)
-
-                    #### select colour based on class
-                    fig.add_shape(type="rect", # specify the shape type "rect"
-                            # xref="x", # reference the x-axis
-                            # yref="paper", # reference the y-axis
-                            x0=ind[0], # the x-coordinate of the left side of the rectangle
-                            y0=lower_th, # the y-coordinate of the bottom of the rectangle
-                            x1=ind[-1], # the x-coordinate of the right side of the rectangle
-                            y1=upper_th, # the y-coordinate of the top of the rectangle
-                            opacity=0.3, # the opacity
-                            layer="below", # draw shape below traces
-                            line_width=0, # outline width
-                            fillcolor='LightSeaGreen', # the fill color
-                            )
-                    
-                    # Add dotted lines on the sides of the rectangle
-                    for y in [lower_th, upper_th]:
-                        fig.add_shape(type="line",
-                                # xref="x",
-                                # yref="paper",
-                                x0=ind[0],
-                                y0=y,
-                                x1=ind[-1],
-                                y1=y,
-                                line=dict(
-                                    color='LightSeaGreen',
-                                    width=2,
-                                    dash="dot",
-                                ),
-                            )
-                    ##### add legend for threshold based on colours/class
-                    fig.add_trace(go.Scatter(
-                        x=[None],  # these traces will not have any data points
-                        y=[None],
-                        mode='markers',
-                        marker=dict(size=10, color='LightSeaGreen'),
-                        showlegend=True,
-                        name='Threshold',
-                    ))
+                        thresh_vals = thresholds[var_name]
+                        if len(thresh_vals) > 1 and isinstance(thresh_vals[0], list) == False:
+                            print('thresh_vals:', thresh_vals)      
+                            lower_th, upper_th = thresholds[var_name]
+                            lower_th *= 1000
+                            upper_th *= 1000
+                            toplot_thresh += [(var_name, lower_th, upper_th)]
+                        else:
+                            print('thresh_vals2:', thresh_vals)
+                            for l_th, u_th in thresh_vals:
+                                lower_th = l_th*1000
+                                upper_th = u_th*1000
+                                toplot_thresh += [(var_name, lower_th, upper_th)]
+                    # print('plot fun:', var_name, lower_th, upper_th)
+                    # print('to_plot_thresh:', toplot_thresh)
+                    for (varname, lower_th, upper_th) in toplot_thresh:
+                        #### select colour based on class
+                        fig.add_shape(type="rect", # specify the shape type "rect"
+                                # xref="x", # reference the x-axis
+                                # yref="paper", # reference the y-axis
+                                x0=ind[0], # the x-coordinate of the left side of the rectangle
+                                y0=lower_th, # the y-coordinate of the bottom of the rectangle
+                                x1=ind[-1], # the x-coordinate of the right side of the rectangle
+                                y1=upper_th, # the y-coordinate of the top of the rectangle
+                                opacity=0.3, # the opacity
+                                layer="below", # draw shape below traces
+                                line_width=0, # outline width
+                                fillcolor='LightSeaGreen', # the fill color
+                                )
+                        
+                        # Add dotted lines on the sides of the rectangle
+                        for y in [lower_th, upper_th]:
+                            fig.add_shape(type="line",
+                                    # xref="x",
+                                    # yref="paper",
+                                    x0=ind[0],
+                                    y0=y,
+                                    x1=ind[-1],
+                                    y1=y,
+                                    line=dict(
+                                        color='LightSeaGreen',
+                                        width=2,
+                                        dash="dot",
+                                    ),
+                                )
+                        ##### add legend for threshold based on colours/class
+                        fig.add_trace(go.Scatter(
+                            x=[None],  # these traces will not have any data points
+                            y=[None],
+                            mode='markers',
+                            marker=dict(size=10, color='LightSeaGreen'),
+                            showlegend=True,
+                            name='Threshold',
+                        ))
 
             ### plot ground_truths
             if ground_truths != None:
