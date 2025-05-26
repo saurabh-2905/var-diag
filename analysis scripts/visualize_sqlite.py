@@ -189,6 +189,10 @@ app.layout = dbc.Container([
     ),
 
     html.Br(),
+    html.H4("Select Thresholds for EI:"),
+    dcc.RadioItems(['Single-MinMax', 'Multi-MinMax',], 'Single-MinMax', inline=True, id='addons_thresholds', inputStyle={"margin-left": "20px", "margin-right": "5px"}),
+
+    html.Br(),
     html.H4("Select Detection Model to Vizualize Predictions:"),
     dcc.Dropdown(['st_predictions', 'ei_predictions', 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'forecaster_predictions,', 'clustering_predictions', 'diag_AP2'], None, id='detection_model'),
 
@@ -244,7 +248,7 @@ app.layout = dbc.Container([
      Input('detection_subset', 'value'),
      Input('diff_val', 'value'),
      Input('anomaly_sep', 'value'),
-     Input('window', 'value'),]
+     Input('window', 'value')],
 )
 def update_graph(selected_config_id, selected_range, addons_flags, detection_model, detection_subset, diff_val, anomaly_sep, window):
     session = Session()
@@ -489,9 +493,12 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
 # Define the callback to update the execution interval graph
 @app.callback(
     Output('tab-content', 'children'),
-    [Input('config-dropdown', 'value'), Input('range-slider', 'value'), Input('addons', 'value')]
+    [Input('config-dropdown', 'value'), 
+     Input('range-slider', 'value'), 
+     Input('addons', 'value'), 
+     Input('addons_thresholds', 'value')],  # Add the new input for thresholds
 )
-def update_exeint(selected_config_id, selected_range, addons_flags):
+def update_exeint(selected_config_id, selected_range, addons_flags, addons_thresholds):
     session = Session()
     events_query = session.query(Event).filter_by(file_number=selected_config_id).all()
     # print('events_query:', len(events_query))
@@ -529,6 +536,8 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     predictions_path_st_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_fp_st_detections.json']
 
     threshold_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/faulty_data/thresholds.json']
+    threshmmulti_path = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/faulty_data/thresholds_multi.json']
+
     # print('var_list_path_ei', varlist_path)
 
     # if 'x_ticks' in addons_flags:
@@ -557,11 +566,12 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
     thresholds = None
     labels = None
     if addons_flags is not None:
-        if 'thresholds' in addons_flags:
-            if os.path.exists(threshold_path[0]):
-                thresholds = read_json(threshold_path[0])
-            else:
-                print('Threshold file does not exist')
+        # if 'thresholds' in addons_flags:
+        #     if os.path.exists(threshold_path[0]):
+        #         thresholds = read_json(threshold_path[0])
+        #     else:
+        #         print('Threshold file does not exist')
+        
         
         if 'labels' in addons_flags:
             ### check if label file exists
@@ -572,6 +582,20 @@ def update_exeint(selected_config_id, selected_range, addons_flags):
             else:
                 labels = None
                 print('Label file does not exist')
+            
+    if addons_thresholds is not None:
+        if addons_thresholds == 'Single-MinMax':
+            if os.path.exists(threshold_path[0]):
+                thresholds = read_json(threshold_path[0])
+            else:
+                print('Threshold file does not exist')
+        elif addons_thresholds == 'Multi-MinMax':
+            if os.path.exists(threshmmulti_path[0]):
+                thresholds = read_json(threshmmulti_path[0])
+            else:
+                print('Threshold file does not exist')
+        else:
+            print('Thresholds not found')
 
     plot_list = plot_execution_interval_single(to_plot, 
                                                ground_truths= labels,
