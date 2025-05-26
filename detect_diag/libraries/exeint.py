@@ -139,15 +139,18 @@ class exeInt:
 
 
         ### get upper and lower bound by taking min and max from unique_values (can try some other approach)
-        thresholds = {}
+        thresholds = defaultdict(list)
         for key in unique_values.keys():
             # print('Unique values:', key, unique_values[key])
             values = list(unique_values[key].keys())
             # print('Key:', key, len(values))
-            if len(values) >= 1:
-                thresholds[key] = [np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None)]
+            if len(values) == 1:
+                thresholds[key] = [(np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None))]
+            elif len(values) > 1:
+                for val in values:
+                    thresholds[key] += [(np.clip(np.round(val-0.1, 1), 0, None), np.clip(np.round(val+0.1, 1), 0, None))]
 
-        return thresholds, outliers, unique_values
+        return thresholds
     
 
     def train_lof(self, exe_list):
@@ -723,6 +726,12 @@ class exeInt:
     
 
     def viz_thresholds(self, exe_list, confidence_intervals=None, thresholds=None):
+        '''
+        exe_list: dictionary containing the execution intervals for each variable -> dict
+        confidence_intervals: dictionary containing the confidence intervals for each variable -> dict
+        thresholds: dictionary containing the threshold values for each variable -> dict
+        multithresh: boolean to indicate if multiple thresholds are used -> bool
+        '''
         for key in exe_list.keys():
             fig = go.Figure()
 
@@ -737,20 +746,26 @@ class exeInt:
                 fig.add_trace(go.Scatter(x=[confidence_intervals[key][0]], y=[0], mode='lines', name='Confidence Interval', line=dict(color="Red", dash="dash"), showlegend=True))
             
             if thresholds != None:
-                fig.add_shape(type="line", x0=min(thresholds[key]), x1=min(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
-                fig.add_shape(type="line", x0=max(thresholds[key]), x1=max(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
-                fig.add_trace(go.Scatter(x=[min(thresholds[key])], y=[0], mode='lines', name='Dynamic Threshold', line=dict(color="Green", dash="dash"), showlegend=True))
+                if len(thresholds[key]) == 1:
+                    fig.add_shape(type="line", x0=min(thresholds[key]), x1=min(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
+                    fig.add_shape(type="line", x0=max(thresholds[key]), x1=max(thresholds[key]), y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
+                    fig.add_trace(go.Scatter(x=[min(thresholds[key])], y=[0], mode='lines', name='Thresholds', line=dict(color="Green", dash="dash"), showlegend=True))
+                elif len(thresholds[key]) > 1:
+                    for th_single in thresholds[key]:
+                        fig.add_shape(type="line", x0=th_single[0], x1=th_single[0], y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
+                        fig.add_shape(type="line", x0=th_single[1], x1=th_single[1], y0=0, y1=1, yref='paper', line=dict(color="Green", dash="dash"))
+                        fig.add_trace(go.Scatter(x=[th_single[0]], y=[0], mode='lines', name='Thresholds', line=dict(color="Green", dash="dash"), showlegend=True))
 
             # Layout
             fig.update_layout(title=key, xaxis_title="Value", yaxis_title="Count", bargap=0.2, bargroupgap=0.1, title_font_size=20,
                                 xaxis=dict(
                                     tickfont = dict(size = 20),
-                                    titlefont = dict(size = 20),
+                                    #titlefont = dict(size = 20),
                                     color='black',
                                 ),
                                 yaxis=dict(
                                     tickfont = dict(size = 20),
-                                    titlefont = dict(size = 20),
+                                    #titlefont = dict(size = 20),
                                     color='black'
                                 ),
                                 plot_bgcolor='rgba(0,0,0,0)',)
