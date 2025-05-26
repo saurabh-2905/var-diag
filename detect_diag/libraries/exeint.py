@@ -96,6 +96,59 @@ class exeInt:
                 thresholds[key] = [np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None)]
 
         return thresholds
+    
+    
+    def get_multi_thresh(self, exe_list):
+        '''
+        exe_list: dictionary containing the execution intervals for each variable for all files -> dict
+
+        return:
+        thresholds: dictionary containing the threshold values for each variable -> dict
+        '''
+        ### get uniques values from exe_list
+        unique_values = {}
+        outliers = {}
+        for key in exe_list.keys():
+            data = exe_list[key]
+            data = [round(x, 1) for x in data]  ### round the values to 1 decimal point
+            unique_values[key] = list(set(data))
+            ### calculate probability for each unique value
+            prob = {}
+            for val in unique_values[key]:
+                prob[val] = data.count(val)/len(data)
+            unique_values[key] = prob
+
+        ### consider values with probability > 0.05
+        outliers[key] = dict()
+        for key in unique_values.keys():
+            print(key)
+            prob = unique_values[key]
+            # print(prob.keys())
+            filtered_values = defaultdict(list)
+            out = dict()
+            for val in prob.keys():
+                print('value:', val, 'prob:', prob[val])
+                if prob[val] > 0.00:    ### 0.009 based on mamba dataset, to avoid the starting exeinterval which is outlier
+                    filtered_values[val] = prob[val]
+                else:
+                    out[val] = prob[val]
+
+
+            unique_values[key] = filtered_values
+            outliers[key] = out
+
+
+        ### get upper and lower bound by taking min and max from unique_values (can try some other approach)
+        thresholds = {}
+        for key in unique_values.keys():
+            # print('Unique values:', key, unique_values[key])
+            values = list(unique_values[key].keys())
+            # print('Key:', key, len(values))
+            if len(values) >= 1:
+                thresholds[key] = [np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None)]
+
+        return thresholds, outliers, unique_values
+    
 
     def train_lof(self, exe_list):
         '''
