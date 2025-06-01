@@ -378,28 +378,33 @@ class exeInt:
                     ### check if var was present in the training data
                     # if var not in thresholds.keys():
                     #     thresholds[var] = [0.0, 3]
-                        
+                    thresh_val = []
                     if var in thresholds.keys():
-                        ### check if exe_time is an outlier
-                        if exe_time < thresholds[var][0] or exe_time > thresholds[var][1]:
+                        # print('var:', var, 'thresh:', thresholds[var][0], len(thresholds[var]))
+                        if len(thresholds[var]) == 2 and isinstance(thresholds[var][0], (int, float)):
+                            thresh_val += [thresholds[var]]
+                            print('added')
+                        else:
+                            thresh_val.extend(thresholds[var])
+                        # thresh_val += [thresholds[var]]
+
+                        # print('thresh_val:', thresh_val)
+                        anomaly = []
+                        # print('thresh_val:', thresh_val)
+                        for lower_th, upper_th in thresh_val:
+                            print('lower_th, upper_th:', lower_th, upper_th)
+                            ### check if exe_time is an outlier
+                            if exe_time < lower_th or exe_time > upper_th:
+                                anomaly += [True]
+                                # break
+                            else:
+                                anomaly += [False]
+                        
+                        print('anomaly:', anomaly, all(anomaly) == True)
+                        if all(anomaly) == True:    ### if all thresholds are violated, then consider it as an anomaly
+                            anomaly = False    
                             print(f'Anomaly detected for {var} in {filename} at {i}th event')
-                            # print(f'Execution interval: {exe_time}')
-                            # detected_anomalies += [[(var,0), (var_tracking[var][-2], var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
-                            
-                            # #### since the variables can occur less frequently and cause larger detections, make the detection more precise with following logic
-                            # lb = var_tracking[var][-2]
-                            # ub = var_tracking[var][-1]
-                            # mid = ((ub-lb)//2)+lb
-                            # ### find the closet higher ans lower from ts to the mid point
-                            # for x in all_ts:
-                            #     if x < mid-(thresholds[var][1]*1000//2):
-                            #         lb = x
-                            #     elif x > mid+(thresholds[var][1]*1000//2):
-                            #         ub = x
-                            #         break
-                            # detected_anomalies += [[(var,0), (lb, ub), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST
-                            # print('clipped:', (var_tracking[var][-2] - var_tracking[var][-1]), 'to:', (lb - ub))
-                            lb = max(var_tracking[var][-1]-(thresholds[var][1]*1000*1.5), var_tracking[var][-1]-15000)
+                            lb = max(var_tracking[var][-1]-(upper_th*1000*1.5), var_tracking[var][-1]-15000)
                             detected_anomalies += [[(var, exe_time), (lb, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST
                             # detected_anomalies += [[(var, exe_time), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 
                 
