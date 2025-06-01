@@ -194,7 +194,7 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Select Detection Model to Vizualize Predictions:"),
-    dcc.Dropdown(['st_predictions', 'ei_predictions', 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'forecaster_predictions,', 'clustering_predictions', 'diag_AP2'], None, id='detection_model'),
+    dcc.Dropdown(['st_predictions', 'ei_predictions', 'ei_multithresh' 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'forecaster_predictions,', 'clustering_predictions', 'diag_AP2'], None, id='detection_model'),
 
     html.Br(),
     html.H4("Select Subset of Predictions:"),
@@ -205,11 +205,11 @@ app.layout = dbc.Container([
     dcc.Dropdown(['0', '1', '2', '5'], '5', id='diff_val'),
 
     html.Br(),
-    html.H4("Window (if applicable):"),
+    html.H4("Window (only for ST):"),
     dcc.Dropdown(['10', '20', '30', '50', '80', '500'], '10', id='window'),
 
     html.Br(),
-    html.H4("Anomaly Seperation Method"),
+    html.H4("Anomaly Seperation Method (only for diag_AP2)"),
     dcc.Dropdown(['1', '2', '3', '4'], '1', id='anomaly_sep'),
 
     html.Br(),
@@ -289,6 +289,10 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
     predictions_path_ei = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_ei_detections_{diff_val}.json']
     predictions_path_ei_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_tp_ei_detections_{diff_val}.json']
     predictions_path_ei_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_detections/trace_trial{TRIAL}_fp_ei_detections_{diff_val}.json']
+
+    predictions_path_ei_multithresh = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_multithresh_detections/trace_trial{TRIAL}_ei_multithresh_detections_{diff_val}.json']
+    predictions_path_ei_multithresh_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_multithresh_detections/trace_trial{TRIAL}_tp_ei_multithresh_detections_{diff_val}.json']
+    predictions_path_ei_multithresh_fp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/ei_multithresh_detections/trace_trial{TRIAL}_fp_ei_multithresh_detections_{diff_val}.json']
     
     predictions_path_st = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_st_detections_{diff_val}.json']
     predictions_path_st_tp = [f'../trace_data/{CODE}/single_thread/version_{VERSION}/{BEHAVIOUR}/st_detections/trace_trial{TRIAL}_tp_st_detections_{diff_val}.json']
@@ -378,6 +382,22 @@ def update_graph(selected_config_id, selected_range, addons_flags, detection_mod
             elif 'fp_predict' in detection_subset:
                 if os.path.exists(predictions_path_ei_fp[0]):
                     predictions = prepare_detections(predictions_path_ei_fp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+        elif 'ei_multithresh' in detection_model:
+            if 'all_predict' in detection_subset:
+                if os.path.exists(predictions_path_ei_multithresh[0]):
+                    predictions = prepare_detections(predictions_path_ei_multithresh, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'tp_predict' in detection_subset:
+                if os.path.exists(predictions_path_ei_multithresh_tp[0]):
+                    predictions = prepare_detections(predictions_path_ei_multithresh_tp, timestamps)
+                else:
+                    print('Prediction file does not exist')
+            elif 'fp_predict' in detection_subset:
+                if os.path.exists(predictions_path_ei_multithresh_fp[0]):
+                    predictions = prepare_detections(predictions_path_ei_multithresh_fp, timestamps)
                 else:
                     print('Prediction file does not exist')
         elif 'st_predictions' in detection_model:
