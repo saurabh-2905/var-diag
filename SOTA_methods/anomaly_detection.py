@@ -14,6 +14,14 @@ def read_traces(trace_path):
 
 
 def load_data(file_paths):
+    '''
+    Load data from multiple trace files.
+    Parameters:
+    file_paths : List of file paths to trace files -> list of str
+    Each file should contain traces in the format: [[event_ids], [timestamps]].
+    Returns:
+    data: List of lists, where each inner list contains traces from a single file -> list of lists
+    '''
     data = []
     for file in file_paths:
         print("File from load data : ", file)
@@ -25,6 +33,19 @@ def load_data(file_paths):
 
 # To test a single test data file with a trained LSTM model to detect anomalies
 def test_single(file_path, model, sequence_length):
+    '''
+    This function performs anomaly detection on a single test data file by segmenting the data into sequences, scaling the data, and then using a trained LSTM or GRU model to detect anomalies.
+    Here, we check both ID and timestamp values for anomalies. 
+    Parameters:
+    file_path: Path to the test data file -> str
+    model: Trained LSTM model for anomaly detection -> keras.Model
+    sequence_length: Length value by which we create the segments of data -> int
+    scaler: Scaler used to scale the training data -> MinMaxScaler
+    Returns:
+    anomalies: List of detected anomalies, where each anomaly is represented as a tuple containing the start and end indices, timestamps, and file name -> list of tuples
+    [(start_index, end_index),(start_timestamp, end_timestamp),file_name]
+    inference_time: Time taken for inference in milliseconds -> float
+    '''
     anomalies = []
 
     test_data = load_data([file_path])[0]                       # Load test data
