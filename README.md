@@ -4,9 +4,10 @@ This repository contains a lightweigth fault detection and diagnosis method whic
 This repository also contains the implementation of **SOTA** methods that we used to benchmark our performance.
 <!-- This branch contains the code used to produce the results for *VarLogger: Anomaly Detection in IoT Sensor Nodes* publication. -->
 
+## 📊 Overview: VarLogger Pipeline
 The fault detection in VarLogger works in two parts: 
-**a) Logging**: collecting the training data from the sensor nodes defining the correct behavior of the sensor nodes; 
-**b) Training**: using the collected data to train lightwieght fault detection models based on extracted features.
+1. **Logging**: collecting the training data from the sensor nodes defining the correct behavior of the sensor nodes; 
+2. **Training**: using the collected data to train lightwieght fault detection models based on extracted features.
 
 ## Node Client Library
 This is the micropython library used **Logging**. VarLogger collects event traces from the sensor nodes which are further used for training and detection. Event trace is a time series data collected by monitoring the execution of code line by line running on the deployed sensor nodes. 
@@ -51,3 +52,54 @@ TODO
 
 ## Runtime Detection
 TODO
+
+## 📂 Repository structure
+```bash
+├── Misc
+├── SOTA_methods/
+│   ├── LSTM \& GRU
+│   ├── clustering methods
+│   ├── dustminer
+│   ├── trained_minmax_scaler
+│   ├── anomaly_detection.py
+│   └── utils.py
+├── anaysis scripts/
+├── detect_diag/
+├── logic 2/
+│   ├── new.py
+│   └── old data.py
+├── node client/
+│   ├── varlogger_arduino
+│   ├── varlogger V3.py
+│   ├── varlogger V4.py.py
+│   └── version description.rtf
+├── README.md
+├── __init__.py
+├── requirements backup-03_03_25.txt
+└── requirements.txt
+```
+
+
+## SOTA Methods
+Located in the SOTA_methods/ directory for benchmarking:
+- Clustering
+- LSTM
+- GRU
+We use these methods as a baseline for comparing our Varlogger's performance.
+
+## Installation
+For Micropython devices,
+1. Install micropython firmware
+2. Upload varlogger.py to /lib.
+
+For analysis (Feature extraction and Model training)
+- Python 3.x
+- Numpy
+- Pandas
+- Scikit-learn
+- Tensorflow
+- Matplotlib
+
+```bash
+pip install numpy pandas scikit-learn tensorflow matplotlib
+```
