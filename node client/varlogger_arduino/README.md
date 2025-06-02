@@ -1,4 +1,4 @@
-# VarLogger: Lightweight Trace Logging for Embedded Systems
+# VarLogger: Lightweight Trace Logging mechanism
 
 `VarLogger` is a C++ logging method that logs **event sequences and timestamps** to an SD card. It captures program variable changes, tracks thread activity, and stores trace data in a structured format (JSON), making it suitable for post-analysis, anomaly detection, or debugging.
 
@@ -30,8 +30,10 @@
 ---
 
 ## Project Structure
+```bash
 ├── VarLogger.cpp   # VarLogger implementation.
 ├── Varlogger.h     # Varlogger class definition and member declarations.
+```
 
 ## Logging functions
 - `log(var, fun, clas, th, val, save)`:
