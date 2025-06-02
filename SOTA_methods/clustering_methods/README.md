@@ -90,8 +90,8 @@ clustering_methods/
 ```bash
     jupyter notebook clustering_methods.ipynb
 ```
-    2. Also, we can directly open the notebook in a VS code.
-    3. Once, the notebook is opened the runs the cells sequentially to Preprocess the trace data, extract features using Seglearn, train the KNN model and generate cluster labels, and evaluate the model and detect anomalies.
+2. Also, we can directly open the notebook in a VS code.
+3. Once, the notebook is opened the runs the cells sequentially to Preprocess the trace data, extract features using Seglearn, train the KNN model and generate cluster labels, and evaluate the model and detect anomalies.
 
 
 - *Saving the trained_model and scalers*
