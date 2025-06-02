@@ -16,7 +16,6 @@ FONTSIZE = 15
 PLOTHEIGHT = 1500
 
 
-
 def get_config(file_name='theft_protection_config'):
     '''
     read the configuration file and extract the values
