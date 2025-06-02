@@ -4,8 +4,6 @@ This repository provides a comprehensive implementation for anomaly detection in
 
 - **EventID + Timestamp Difference Model**: Anomaly detection using sequences of event IDs and corresponding timestamp differences as combined features.
 
-Significant accuracy variations were observed, with the **ID model outperforming the ID-Timestamp model** in most cases.
-
 ---
 
 ## 📊 Features
@@ -87,12 +85,11 @@ clustering_methods/
 
 - *Now run the notebooks*
     1. Open the Jupyter Notebooks:
+    2. Also, we can directly open the notebook in a VS code.
+    3. Once, the notebook is opened the runs the cells sequentially to Preprocess the trace data, extract features using Seglearn, train the KNN model and generate cluster labels, and evaluate the model and detect anomalies.
 ```bash
     jupyter notebook clustering_methods.ipynb
 ```
-2. Also, we can directly open the notebook in a VS code.
-3. Once, the notebook is opened the runs the cells sequentially to Preprocess the trace data, extract features using Seglearn, train the KNN model and generate cluster labels, and evaluate the model and detect anomalies.
-
 
 - *Saving the trained_model and scalers*
     1. The following files will be saved in the trained_model and scalers directories for later use.
