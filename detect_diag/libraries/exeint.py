@@ -383,7 +383,7 @@ class exeInt:
                         # print('var:', var, 'thresh:', thresholds[var][0], len(thresholds[var]))
                         if len(thresholds[var]) == 2 and isinstance(thresholds[var][0], (int, float)):
                             thresh_val += [thresholds[var]]
-                            print('added')
+                            # print('added')
                         else:
                             thresh_val.extend(thresholds[var])
                         # thresh_val += [thresholds[var]]
@@ -392,7 +392,7 @@ class exeInt:
                         anomaly = []
                         # print('thresh_val:', thresh_val)
                         for lower_th, upper_th in thresh_val:
-                            print('lower_th, upper_th:', lower_th, upper_th)
+                            # print('lower_th, upper_th:', lower_th, upper_th)
                             ### check if exe_time is an outlier
                             if exe_time < lower_th or exe_time > upper_th:
                                 anomaly += [True]
@@ -400,10 +400,10 @@ class exeInt:
                             else:
                                 anomaly += [False]
                         
-                        print('anomaly:', anomaly, all(anomaly) == True)
+                        # print('anomaly:', anomaly, all(anomaly) == True)
                         if all(anomaly) == True:    ### if all thresholds are violated, then consider it as an anomaly
                             anomaly = False    
-                            print(f'Anomaly detected for {var} in {filename} at {i}th event')
+                            # print(f'Anomaly detected for {var} in {filename} at {i}th event')
                             lb = max(var_tracking[var][-1]-(upper_th*1000*1.5), var_tracking[var][-1]-15000)
                             detected_anomalies += [[(var, exe_time), (lb, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST
                             # detected_anomalies += [[(var, exe_time), (var_tracking[var][-1]-5000, var_tracking[var][-1]), os.path.basename(sample_path)]]    ### 0 in (var,0) is to keep the detection format same as ST 

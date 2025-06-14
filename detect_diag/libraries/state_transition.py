@@ -145,15 +145,15 @@ class StateTransition:
         for key in trans_keys:
             transitions_new[int(key)] = transitions[key]
         transitions = transitions_new
-        print(transitions)
+        # print(transitions)
 
         anomalies = []
         if file_path.find('.npy') != -1:
             sample_data = load_sample(file_path)
-            print(file_path)
+            # print(file_path)
         else:
             sample_data = read_traces(file_path)
-            print(file_path)
+            # print(file_path)
 
         # sample_data  = sample_data[0:500]  ### get only first 500 events for testing
         detected_anomaly = False
@@ -170,7 +170,7 @@ class StateTransition:
                     detected_anomaly = True
 
             if detected_anomaly:
-                print('Anomaly Detected:', [(var1, var2), (ts1, ts2), os.path.basename(file_path)])
+                # print('Anomaly Detected:', [(var1, var2), (ts1, ts2), os.path.basename(file_path)])
                 # anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(sample_path)]]
                 anomalies += [[(var1, var2), (ts1, ts2), os.path.basename(file_path)]]
                 detected_anomaly = False
@@ -195,15 +195,15 @@ class StateTransition:
         # for key in trans_keys:
         #     transitions_new[int(key)] = transitions[key]
         # transitions = transitions_new
-        print(transitions)
+        # print(transitions)
 
         anomalies = []
         if file_path.find('.npy') != -1:
             sample_data = load_sample(file_path)
-            print(file_path)
+            # print(file_path)
         else:
             sample_data = read_traces(file_path)
-            print(file_path)
+            # print(file_path)
 
         # sample_data  = sample_data[0:500]  ### get only first 500 events for testing
         detected_anomaly = False
@@ -245,7 +245,7 @@ class StateTransition:
                     detected_anomaly = True
 
             if detected_anomaly:
-                print('Anomaly Detected:', [(var_seq1[-10], var_seq2), (ts1, ts2), os.path.basename(file_path)])
+                # print('Anomaly Detected:', [(var_seq1[-10], var_seq2), (ts1, ts2), os.path.basename(file_path)])
                 # anomalies += [[(var1, ts1), (var2, ts2), os.path.basename(sample_path)]]
                 anomalies += [[(var_seq1[-10], var_seq2), (ts1, ts2), os.path.basename(file_path)]]
                 detected_anomaly = False
@@ -271,7 +271,7 @@ class StateTransition:
         ### sort the list using the first timestamp of every detection
         # print('Pred:', pred)
         pred = sorted(pred, key=lambda x: x[1][0])
-        print('sorted detecions:', pred)
+        # print('sorted detecions:', pred)
         det_ts1 = [ x[1][0]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
         det_ts2 = [ x[1][1]/1000 for x in pred]  ### get first timestamp of every detection and convert from mili second to second
         # print('merge ts:', pred[0][1], det_ts1[0], det_ts2[0])
@@ -418,7 +418,7 @@ class StateTransition:
 
                         
                         if cond_1 or cond_2 or cond_3 or cond_4:
-                            print(gt_ind, im, cond_1, cond_2, cond_3, cond_4)
+                            # print(gt_ind, im, cond_1, cond_2, cond_3, cond_4)
                             tmp_pred += [(im, pred, cond_1, cond_2, cond_3, cond_4)]    ### store all correct predictions that match with current gt      ### if cond_1 is TRUE, that means the detection is inside the gt and even multiple pred can be correct                  
 
                     if tmp_pred != []:
@@ -429,7 +429,7 @@ class StateTransition:
                             # print('if:', tmp_pred)
                             iou_pred = []
                             for ip, pred, case_1, case_2, case_3, case_4 in tmp_pred:
-                                print('ip, pred', ip, pred)
+                                # print('ip, pred', ip, pred)
                                 state1, state2 = pred[0]
                                 pd_ts1, pd_ts2 = pred[1]
                                 filename = pred[2]
@@ -456,9 +456,9 @@ class StateTransition:
                             if not perfect_pred:    ### skip selecting the best detection if there is a perfect detection (case 1)
                                 best_pred_ind = iou_pred.index(max(iou_pred))
                                 best_pred = tmp_pred[best_pred_ind]
-                                print('ground_truth', gt)
-                                print('best_pred:', best_pred)
-                                print('y_pred_ind:', y_pred_ind)
+                                # print('ground_truth', gt)
+                                # print('best_pred:', best_pred)
+                                # print('y_pred_ind:', y_pred_ind)
                                 # gt_pred[gt_ind] += [pred]  ### store the best detection for the given gt
                                 if best_pred[0] not in y_pred_ind:
                                     y_pred_ind += [best_pred[0]]
@@ -467,7 +467,7 @@ class StateTransition:
                                     y_pred += [1]
                         else:
                             # print('else:', tmp_pred)
-                            print('y_pred_ind:', y_pred_ind)
+                            # print('y_pred_ind:', y_pred_ind)
                             if tmp_pred[0][0] not in y_pred_ind:
                                 y_pred_ind += [tmp_pred[0][0]]
                                 correct_pred += [tmp_pred[0][1]]  
