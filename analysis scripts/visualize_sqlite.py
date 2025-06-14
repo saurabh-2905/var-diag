@@ -194,7 +194,7 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Select Detection Model to Vizualize Predictions:"),
-    dcc.Dropdown(['st_predictions', 'ei_predictions', 'ei_multithresh' 'st10_predictions', 'lstm_predictions', 'gru_predictions,', 'forecaster_predictions,', 'clustering_predictions', 'diag_AP2'], None, id='detection_model'),
+    dcc.Dropdown(['st_predictions', 'ei_predictions', 'ei_multithresh', 'st10_predictions', 'lstm_predictions', 'gru_predictions', 'forecaster_predictions', 'clustering_predictions', 'diag_AP2'], None, id='detection_model'),
 
     html.Br(),
     html.H4("Select Subset of Predictions:"),
@@ -202,11 +202,11 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Merge with diff_val (seconds):"),
-    dcc.Dropdown(['0', '1', '2', '5'], '5', id='diff_val'),
+    dcc.Dropdown(['0', '1', '2', '5', '10', '15', '20', '25', '30', '35', '50', '100', '150'], '5', id='diff_val'),
 
     html.Br(),
     html.H4("Window (only for ST):"),
-    dcc.Dropdown(['10', '20', '30', '50', '80', '500'], '10', id='window'),
+    dcc.Dropdown(['10', '20', '30', '50', '80', '500'], '30', id='window'),
 
     html.Br(),
     html.H4("Anomaly Seperation Method (only for diag_AP2)"),
