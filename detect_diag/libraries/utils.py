@@ -904,6 +904,8 @@ def detection_quality(all_tp, output_score=False):
     '''
     This function calculates the quality of the detections by comparing them with the ground truth, especially designed to evaluate quality of diff_val output. It checks how much of the detection trace overlaps with the ground truth trace and calculates the percentage of the detection trace that does not overlap with the ground truth trace. This percentage is considered as the quality score of the detection. Lower the score, better the quality and precise the detection. For score of 0.0, the deteciton is overlapping perfectly with the gorund truth or it is so precise that the detection is within the bounds of the fround truth. For score of 1.0, the detection is completely outside the bounds of the ground truth, meaning it is a false positive. In case of multiple groundtruths overlapping with the detection, the function calculates how much portion of the detection is covered by these GTs and returns the percentage of the length of detection that does not overlap with any of the ground truths. Thus it helps in understanding if the detection genereated after diff_val covers to much unwanted part (non-anomalous), thus leading to less precise detections.
 
+    Also calculate the quality score as ratio of number of TP to number of detected GT. This ratio will tell us how many detections are made for total number of detected GT. As the value of diff_val increases, the number of TPs are reduced as the neighbouring TPs are merged. If this ratio is too low, it means the detection are too little which indicates poor precision of the detections. 
+
     Parameters:
     all_tp (list): List of tuples containing file path, true positives, and label path
     output_score (bool): If True, returns the quality score of each detection; otherwise, returns list similar to all_tp with quality scores instead of true positives.
@@ -911,9 +913,14 @@ def detection_quality(all_tp, output_score=False):
     all_tp_quality (list): List of tuples containing file path, quality scores, and label path.
     OR
     quality_scores (list): List of quality scores for each detection if output_score is True.
+
+    all_tp_count (int): Total number of true positives across all files.
+    all_gt_count (int): Total number of detected ground truths across all files.
     '''
     all_tp_quality = []
     all_quality_scores = []
+    all_gt_count = 0
+    all_tp_count = 0
     for file_tp in all_tp[0:]:
         print(file_tp)
         file_path = file_tp[0]
@@ -943,8 +950,10 @@ def detection_quality(all_tp, output_score=False):
         # print('Ground Truth Length:', len(ground_truth))
         print('Ground Truth:', ground_truth)
 
-        ### iterate through the true positives and calculate the quality score
         quality_score = []
+        sel_gt = []
+        gt_count = 0
+        tp_count = 0
         for tp in file_tp[1]:
             print('TP:', tp)
             pd_ts1 = tp[1][0]
@@ -971,7 +980,6 @@ def detection_quality(all_tp, output_score=False):
             # print('Detection Trace Length:', len(det_trace))
 
             ### collect groundtruths that intersect with the detection
-            sel_gt = []
             for gt in ground_truth:
                 gt_ts1 = gt[2]
                 gt_ts2 = gt[3]
@@ -984,7 +992,8 @@ def detection_quality(all_tp, output_score=False):
 
                 if cond_1 or cond_2 or cond_3 or cond_4:
                     print('GT', gt)
-                    sel_gt.append(gt)
+                    if gt not in sel_gt:
+                        sel_gt.append(gt)
 
                     start_gt = np.where(time_stamps == gt_ts1)[0][0]
                     end_gt = np.where(time_stamps == gt_ts2)[0][0]
@@ -1000,7 +1009,7 @@ def detection_quality(all_tp, output_score=False):
                             gt_overlap_trace.append((gt_e, gt_t))
 
 
-            # print('Selected Ground Truths:', sel_gt)
+            print('Selected Ground Truths:', sel_gt)
             # print('gt overlap_trace:', gt_overlap_trace)
 
             ### calculate quality of detection (percentge of detection trace that do not overlap with ground truth)
@@ -1011,17 +1020,31 @@ def detection_quality(all_tp, output_score=False):
                 nonanomaly_percentage = 1 - overlap_percentage
                 nonanomaly_percentage = np.round(nonanomaly_percentage, 2)
                 print('Detection with normal trace (Percentage):', nonanomaly_percentage)
-
                 quality_score.append(nonanomaly_percentage)
+                
+                # quality_score.append(overlap_percentage)
+
+            
+            ### calculate quality metric (detection to ground truth ratio)
+            gt_count = len(sel_gt)
+            tp_count += 1
 
             print('')
             # break    
+
+        all_gt_count += gt_count
+        all_tp_count += tp_count
         
         all_tp_quality.append((file_path, quality_score, label_path))
         all_quality_scores.extend(quality_score)
+        print('GT count:', gt_count)
+        print('TP count:', tp_count)
         print('')   
         # break
+
+    print('Total GT count:', all_gt_count)
+    print('Total TP count:', all_tp_count)
     if output_score:
-        return all_quality_scores
+        return all_quality_scores, all_tp_count, all_gt_count
     else:
         return all_tp_quality
