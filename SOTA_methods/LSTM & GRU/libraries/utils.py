@@ -980,6 +980,7 @@ def detection_quality(all_tp, output_score=False):
             # print('Detection Trace Length:', len(det_trace))
 
             ### collect groundtruths that intersect with the detection
+            gt_overlap_trace = []
             for gt in ground_truth:
                 gt_ts1 = gt[2]
                 gt_ts2 = gt[3]
@@ -1003,7 +1004,6 @@ def detection_quality(all_tp, output_score=False):
                     # print('Ground Truth Trace:', gt_trace)
                     # print('len of gt:', len(gt_trace))
 
-                    gt_overlap_trace = []
                     for (gt_e, gt_t) in gt_trace:
                         if gt_t >= pd_ts1 and gt_t <= pd_ts2:
                             gt_overlap_trace.append((gt_e, gt_t))
@@ -1014,15 +1014,18 @@ def detection_quality(all_tp, output_score=False):
 
             ### calculate quality of detection (percentge of detection trace that do not overlap with ground truth)
             if len(gt_overlap_trace) == 0:
-                raise ValueError('No ground truth overlap trace found for detection', tp, ', file path:', file_path)
+                # raise ValueError('No ground truth overlap trace found for detection', tp, ', file path:', file_path)
+                overlap_percentage = 0.0
             else:
                 overlap_percentage = len(gt_overlap_trace) / len_det_trace
-                nonanomaly_percentage = 1 - overlap_percentage
-                nonanomaly_percentage = np.round(nonanomaly_percentage, 2)
-                print('Detection with normal trace (Percentage):', nonanomaly_percentage)
-                quality_score.append(nonanomaly_percentage)
+                overlap_percentage = np.round(overlap_percentage, 2)
+                # nonanomaly_percentage = 1 - overlap_percentage
+                # nonanomaly_percentage = np.round(nonanomaly_percentage, 2)
+                # print('Detection with normal trace (Percentage):', nonanomaly_percentage)
+                # quality_score.append(nonanomaly_percentage)
                 
-                # quality_score.append(overlap_percentage)
+                print('Overlap Percentage:', overlap_percentage)
+                quality_score.append(overlap_percentage)
 
             
             ### calculate quality metric (detection to ground truth ratio)
