@@ -951,7 +951,6 @@ def detection_quality(all_tp, output_score=False):
         print('Ground Truth:', ground_truth)
 
         quality_score = []
-        sel_gt = []
         gt_count = 0
         tp_count = 0
         for tp in file_tp[1]:
@@ -981,6 +980,7 @@ def detection_quality(all_tp, output_score=False):
 
             ### collect groundtruths that intersect with the detection
             gt_overlap_trace = []
+            sel_gt = []
             for gt in ground_truth:
                 gt_ts1 = gt[2]
                 gt_ts2 = gt[3]
@@ -1024,8 +1024,8 @@ def detection_quality(all_tp, output_score=False):
                 # print('Detection with normal trace (Percentage):', nonanomaly_percentage)
                 # quality_score.append(nonanomaly_percentage)
                 
-                print('Overlap Percentage:', overlap_percentage)
-                quality_score.append(overlap_percentage)
+            print('Overlap Percentage:', overlap_percentage)
+            quality_score.append(overlap_percentage)
 
             
             ### calculate quality metric (detection to ground truth ratio)
