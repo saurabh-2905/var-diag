@@ -45,20 +45,27 @@
 # plt.show()
 
 
+##################################################################################
 
 #### modified 30/06/2025
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Font settings
+font = {
+    'size': 17
+}
+plt.rc('font', **font)
+
 # Fault types (including repeated "Bitflip" renamed for clarity)
 fault_types = [
     "Failed Tx.",
-    "Bursty Sensor",
-    "Bitflip (Temp-Sensor)",
-    "Faulty Sensor Data",
-    "Bitflip (MaMBA)",
-    "Node Out of Sync"
+    "Bursty \nSensor",
+    "Bitflip \n(Temp-\nSensor)",
+    "Faulty \nSensor \nData",
+    "Bitflip \n(MaMBA)",
+    "Node \nOut of \nSync"
 ]
 
 # Models
@@ -99,3 +106,70 @@ ax.grid(True, axis='y', linestyle='--', alpha=0.5)
 
 plt.tight_layout()
 plt.show()
+
+
+##################################################################################
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+
+# # Font settings
+# font = {
+#     'size': 18
+# }
+# plt.rc('font', **font)
+
+# # Fault types (including repeated "Bitflip" renamed for clarity)
+# fault_types = [
+#     "Failed Tx.",
+#     "Bursty Sensor",
+#     "Bitflip (Temp-Sensor)",
+#     "Faulty Sensor Data",
+#     "Bitflip (MaMBA)",
+#     "Node Out of Sync"
+# ]
+
+# # Models
+# models = ["ST-2", "ST-30", "EI", "LSTM", "GRU", "LSTM+CNN"]
+
+# # F1-scores
+# data = [
+#     [0.0,   1.0, 0.78, 0.86, 1.0, 0.65],   # Failed Tx.
+#     [1.0,   1.0, 1.0,  0.75, 0.77, 0.52],  # Bursty Sensor
+#     [1.0,   1.0, 1.0,  0.98, 0.98, 0.61],  # Bitflip (Temp-Sensor)
+#     [0.93,  1.0, 1.0,  1.0,  0.85, 1.0],   # Faulty Sensor Data
+#     [0.037, 0.96, 1.0, 1.0,  0.96, 1.0],   # Bitflip (MaMBA)
+#     [0.33,  1.0, 0.91, 1.0,  1.0,  0.91]   # Node Out of Sync
+# ]
+
+# # Transpose data for easier access by model
+# data_T = list(zip(*data))  # Now: one row per model
+
+# # Colors for each model
+# colours = ['#304994', '#4FCEE9', '#F3691D', '#F2CF2A', '#A560A6', '#4D8434']
+
+# # Y-axis positions (one per fault type)
+# y = np.arange(len(fault_types))
+# height = 0.13  # Height of each horizontal bar
+
+# # Create plot
+# fig, ax = plt.subplots(figsize=(12, 7))
+
+# # Plot bars for each model
+# for i in range(len(models)):
+#     model_scores = data_T[i]
+#     ax.barh(y + (i - 2.5) * height, model_scores, height,
+#             label=models[i], color=colours[i], edgecolor='black', alpha=1)
+
+# # Labels and formatting
+# ax.set_xlabel('F1-Score')
+# ax.set_ylabel('Fault Type')
+# ax.set_yticks(y)
+# ax.set_yticklabels(fault_types)
+# ax.set_xlim(0, 1.1)
+# ax.legend(title='Detection Methods', loc='upper center', bbox_to_anchor=(0.5, 1.15),
+#           ncol=3, fontsize=14)
+# ax.grid(True, axis='x', linestyle='--', alpha=0.5)
+
+# plt.tight_layout()
+# plt.show()
