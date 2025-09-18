@@ -83,7 +83,7 @@ data = [
 
 colours = [ '#304994', '#4FCEE9', '#F3691D', '#F2CF2A', '#A560A6', '#4D8434' ]
 # X-axis positions
-x = np.arange(len(fault_types))
+x = np.arange(1,len(fault_types)+1, 1)
 width = 0.13  # width of the bars
 
 # Create plot
@@ -96,10 +96,11 @@ for i in range(len(models)):
 
 # Labels, title, etc.
 ax.set_ylabel('Recall')
+# ax.set_xlabel('Faults')
 ax.set_xlabel('Anomalies')
 # ax.set_title('F1-Score per Fault Type by Detection Method')
-ax.set_xticks(x)
-ax.set_xticklabels(fault_types, rotation=0)
+# ax.set_xticks(x)
+# ax.set_xticklabels(fault_types, rotation=0)
 ax.set_ylim(0, 1.1)
 ax.legend(title='Detection Methods', loc='upper left', bbox_to_anchor=(1, 1))
 ax.grid(True, axis='y', linestyle='--', alpha=0.5)
