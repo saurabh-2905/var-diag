@@ -18,6 +18,8 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
+COMP_WIDTH = '50%'
+
 ############ Utility Functions ####################
 def prepare_labels(paths_label):
     ### count and prepare labels to plot
@@ -150,10 +152,12 @@ session.close()
 
 ############ Dash Layout ####################  
 # Initialize the Dash app
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+# app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
+
 
 # Define the layout of the app
-app.layout = dbc.Container([
+app.layout = html.Div([
     html.H1("Event Data Dashboard"),
     html.Br(),
     html.H4("Select Experiment Config:"),
@@ -162,7 +166,8 @@ app.layout = dbc.Container([
         id='config-dropdown',
         options=[{'label': f"{row['code_base']} {row['version']} {row['behaviour']} {row['trial_num']}", 'value': row['id']} for _, row in config_df.iterrows()],
         value=config_df['id'].iloc[22],
-        clearable=False
+        clearable=False,
+        style={'width': COMP_WIDTH}
         ),
 
     html.Br(),
@@ -175,9 +180,10 @@ app.layout = dbc.Container([
                     tooltip={
                         "placement": "bottom",
                         "always_visible": True,
-                        "style": {"color": "LightSteelBlue", "fontSize": "16px"},
+                        "style": {"color": "LightSteelBlue", "fontSize": "16px",},
                     },
-                    id='range-slider'),
+                    id='range-slider',
+                    ),
 
     html.Br(),
     html.H4("Select Plotting Parameters:"),
@@ -194,23 +200,23 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.H4("Select Detection Model to Vizualize Predictions:"),
-    dcc.Dropdown(['st_predictions', 'ei_predictions', 'ei_multithresh', 'st10_predictions', 'lstm_predictions', 'gru_predictions', 'forecaster_predictions', 'clustering_predictions', 'diag_AP2'], None, id='detection_model'),
+    dcc.Dropdown(['st_predictions', 'ei_predictions', 'ei_multithresh', 'st10_predictions', 'lstm_predictions', 'gru_predictions', 'forecaster_predictions', 'clustering_predictions', 'diag_AP2'], None, id='detection_model', style={'width': COMP_WIDTH}),
 
     html.Br(),
     html.H4("Select Subset of Predictions:"),
-    dcc.Dropdown(['all_predict', 'tp_predict', 'fp_predict'], 'all_predict', id='detection_subset'),
+    dcc.Dropdown(['all_predict', 'tp_predict', 'fp_predict'], 'all_predict', id='detection_subset', style={'width': COMP_WIDTH}),
 
     html.Br(),
     html.H4("Merge with diff_val (seconds):"),
-    dcc.Dropdown(['0', '1', '2', '5', '10', '15', '20', '25', '30', '35', '50', '100', '150'], '5', id='diff_val'),
+    dcc.Dropdown(['0', '1', '2', '5', '10', '15', '20', '25', '30', '35', '50', '100', '150'], '5', id='diff_val', style={'width': COMP_WIDTH}),
 
     html.Br(),
     html.H4("Window (only for ST):"),
-    dcc.Dropdown(['10', '20', '30', '50', '80', '500'], '30', id='window'),
+    dcc.Dropdown(['10', '20', '30', '50', '80', '500'], '30', id='window', style={'width': COMP_WIDTH}),
 
     html.Br(),
     html.H4("Anomaly Seperation Method (only for diag_AP2)"),
-    dcc.Dropdown(['1', '2', '3', '4'], '1', id='anomaly_sep'),
+    dcc.Dropdown(['1', '2', '3', '4'], '1', id='anomaly_sep', style={'width': COMP_WIDTH}),
 
     html.Br(),
     dcc.Loading(
@@ -223,16 +229,16 @@ app.layout = dbc.Container([
 
     html.Br(),
 
-    html.Div(id="tab-content1", className="p-4", children=[
-                'Execution Interval Graphs'
-            ]),
+    html.Div(id="tab-content1", className="p-4", children=['Execution Interval Graphs'],
+             style={'fontSize': '30px',}
+            ),
                 
     dcc.Loading(
             [html.Div(id="tab-content", className="p-4"),],
             overlay_style={"visibility":"visible", "filter": "blur(2px)"},
-            type="circle",),
+            type="circle", style={'padding': '20px'}),
     
-])
+], style={'width': '60%', 'margin': 'auto', 'padding': '20px', 'fontsize': '20px'})
 
 ############ Dash Layout ####################
 
