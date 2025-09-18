@@ -11,7 +11,7 @@ from io import StringIO
 
 
 #### config for plotting #####
-FONTSIZE = 18
+FONTSIZE = 20
 # PLOTWIDTH = 2000
 PLOTHEIGHT = 1500
 
