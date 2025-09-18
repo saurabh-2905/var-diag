@@ -58,7 +58,7 @@ class exeInt:
         outliers = {}
         for key in exe_list.keys():
             data = exe_list[key]
-            data = [round(x, 1) for x in data]  ### round the values to 1 decimal point
+            data = [round(x, 2) for x in data]  ### round the values to 1 decimal point
             unique_values[key] = list(set(data))
             ### calculate probability for each unique value
             prob = {}
@@ -69,13 +69,13 @@ class exeInt:
         ### consider values with probability > 0.05
         outliers[key] = dict()
         for key in unique_values.keys():
-            print(key)
+            # print(key)
             prob = unique_values[key]
             # print(prob.keys())
             filtered_values = defaultdict(list)
             out = dict()
             for val in prob.keys():
-                print('value:', val, 'prob:', prob[val])
+                # print('value:', val, 'prob:', prob[val])
                 if prob[val] > 0.00:    ### 0.009 based on mamba dataset, to avoid the starting exeinterval which is outlier
                     filtered_values[val] = prob[val]
                 else:
@@ -91,9 +91,9 @@ class exeInt:
         for key in unique_values.keys():
             # print('Unique values:', key, unique_values[key])
             values = list(unique_values[key].keys())
-            # print('Key:', key, len(values))
+            print('Key:', key, values)
             if len(values) >= 1:
-                thresholds[key] = [np.clip(np.round(min(values)-0.1, 1), 0, None), np.clip(np.round(max(values)+0.1, 1), 0, None)]
+                thresholds[key] = [np.clip(np.round(min(values)-0.1, 2), 0, None), np.clip(np.round(max(values)+0.1, 2), 0, None)]
 
         return thresholds
     
