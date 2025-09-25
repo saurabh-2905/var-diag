@@ -48,6 +48,7 @@ def generate_mapper():
     for _, time in trace:
         timestamps.append(time)
 
+    print('timestamps', timestamps)
     for i, (field, entry) in enumerate(metadata_entries.items()):
         if field == 'path':
             entry.insert(0, tracefile_path.get())
@@ -184,6 +185,7 @@ def save_data():
 
         metadata = {}
         labels.clear()
+        timestamps.clear()
     else:
         pass
 # Create save button
