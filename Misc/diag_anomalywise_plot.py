@@ -21,12 +21,12 @@ models = ["Dustminer", "VarDiag"]
 
 # F1-scores
 data = [
-    [0.86, 0.9],   # Failed Tx.
-    [0.25, 1.0],   # Bursty Sensor
+    [0.95, 0.9],   # Failed Tx.
+    [0.94, 1.0],   # Bursty Sensor
     [1.0, 1.0],   # Bitflip-1
-    [0.0, 1.0],   # Faulty Sensor Data
-    [0.59, 0.92],  # Bitflip-2
-    # [0.0, 1.0],   # Unhandled External Interrupt
+    [0.53, 1.0],   # Faulty Sensor Data
+    [0.66, 0.92],  # Bitflip-2
+    # [0.33, 1.0],   # Unhandled External Interrupt
     [1.0, 1.0]    # Node Out of Sync
 ]
 
