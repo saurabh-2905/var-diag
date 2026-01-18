@@ -31,36 +31,24 @@ plt.rcParams.update({
 
 ############ VarDiag contiki data ############
 # Reference data length
-vd_contiki_reference_data_length = [1000, 2000, 3000, 4000, 5000, 7000, 10000, 12000, 15000]
+vd_contiki_reference_data_length = [700, 1000, 2000, 3000, 4000, 5000, 7000, 10000, 12000, 15000]
 
 # Training time taken (ms)
-vd_contiki_training_time_ms = [323, 613, 1060, 1650, 2044, 3040, 4540, 5981, 7786]
+vd_contiki_training_time_ms = [118, 323, 613, 1060, 1650, 2044, 3040, 4540, 5981, 7786]
 # Testing time per event trace (ms)
-vd_contiki_testing_time_ms = [123, 277, 385, 702, 801, 1161, 1633, 2063, 2551]
+vd_contiki_testing_time_ms = [47, 123, 277, 385, 702, 801, 1161, 1633, 2063, 2551]
 # F1 score
-vd_contiki_f1_score = [0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92]
+vd_contiki_f1_score = [0.76, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92]
 
 ############ VarDiag Habitat data ############
 # Reference data length
-vd_habitat_reference_data_length = [
-    1000, 2000, 3000, 4000, 5000, 7000,
-    10000, 12000, 15000, 17000, 20000, 22000, 25000
-]
+vd_habitat_reference_data_length = [700, 1000, 2000, 3000, 4000, 5000, 7000, 10000, 12000, 15000, 17000, 20000, 22000, 25000]
 # Training time taken (ms)
-vd_habitat_training_time_ms = [
-    284, 942, 1598, 2332, 3265, 4582,
-    8445, 11787, 13836, 18783, 24364, 29495, 34965
-]
+vd_habitat_training_time_ms = [106, 284, 942, 1598, 2332, 3265, 4582, 8445, 11787, 13836, 18783, 24364, 29495, 34965]
 # Testing time per event trace (ms)
-vd_habitat_testing_time_ms = [
-    434, 971, 1563, 2645, 2460, 3307,
-    4780, 5548, 6129, 7531, 8900, 9809, 11097
-]
+vd_habitat_testing_time_ms = [175, 434, 971, 1563, 2645, 2460, 3307, 4780, 5548, 6129, 7531, 8900, 9809, 11097]
 # F1 score
-vd_habitat_f1_score = [
-    0.51, 0.56, 0.58, 0.58, 0.71, 0.71,
-    0.73, 0.74, 0.77, 0.78, 0.78, 0.78, 0.79
-]
+vd_habitat_f1_score = [0.5, 0.51, 0.56, 0.58, 0.58, 0.71, 0.71, 0.73, 0.74, 0.77, 0.78, 0.78, 0.78, 0.79]
 
 ############## VarDiag Temp-Sensor data ##############  
 # Reference data length
