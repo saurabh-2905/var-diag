@@ -123,53 +123,56 @@ dus_temp_f1_score = [0.4, 0.4, 0.4]
 # Create figure and first y-axis
 fig, (ax1, ax2, ax3) = plt.subplots(3,1, figsize=(10, 10), sharex=True)
 
-ax1.plot(vd_temp_reference_data_length, vd_temp_training_time_ms, marker='o', markersize=6,linestyle='-' ,label='Train. VarDiag Smart-Build.', color="#0367A6")
-ax2.plot(vd_temp_reference_data_length, vd_temp_testing_time_ms, marker='o', markersize=6, linestyle='-', label='Test. VarDiag Smart-Build.', color="#0367A6", alpha=1)
+ax1.plot(vd_temp_reference_data_length, vd_temp_training_time_ms, marker='o', markersize=6,linestyle='-' ,label='Training VarD. Smart-B.', color="#0367A6")
+ax2.plot(vd_temp_reference_data_length, vd_temp_testing_time_ms, marker='o', markersize=6, linestyle='-', label='Localization VarD. Smart-B.', color="#0367A6", alpha=1)
 
-ax1.plot(vd_habitat_reference_data_length, vd_habitat_training_time_ms, marker='o', markersize=6,linestyle='-' ,label='Train. VarDiag Habitat', color="#A6290D")
-ax2.plot(vd_habitat_reference_data_length, vd_habitat_testing_time_ms, marker='o', markersize=6, linestyle='-', label='Test. VarDiag Habitat', color="#A6290D", alpha=1)
+ax1.plot(vd_habitat_reference_data_length, vd_habitat_training_time_ms, marker='o', markersize=6,linestyle='-' ,label='Training VarD. Habitat', color="#A6290D")
+ax2.plot(vd_habitat_reference_data_length, vd_habitat_testing_time_ms, marker='o', markersize=6, linestyle='-', label='Localization VarD. Habitat', color="#A6290D", alpha=1)
 
-ax1.plot(vd_contiki_reference_data_length, vd_contiki_training_time_ms, marker='o', markersize=6,linestyle='-' ,label='Train. VarDiag Contiki', color="#4F7302")
-ax2.plot(vd_contiki_reference_data_length, vd_contiki_testing_time_ms, marker='o', markersize=6, linestyle='-', label='Test. VarDiag Contiki', color="#4F7302", alpha=1)
+ax1.plot(vd_contiki_reference_data_length, vd_contiki_training_time_ms, marker='o', markersize=6,linestyle='-' ,label='Training VarD. Contiki', color="#4F7302")
+ax2.plot(vd_contiki_reference_data_length, vd_contiki_testing_time_ms, marker='o', markersize=6, linestyle='-', label='Localization VarD. Contiki', color="#4F7302", alpha=1)
 
-ax1.plot(dus_temp_reference_data_length, dus_temp_training_time_ms, marker='o', markersize=6,linestyle='--' ,label='Train. Dustminer Smart-Build.', color="#0367A6")
-ax2.plot(dus_temp_reference_data_length, dus_temp_testing_time_ms, marker='o', markersize=6, linestyle='--', label='Test. Dustminer Smart-Build.', color="#0367A6", alpha=1)
+ax1.plot(dus_temp_reference_data_length, dus_temp_training_time_ms, marker='o', markersize=6,linestyle='--' ,label='Training Dust. Smart-B.', color="#0367A6")
+ax2.plot(dus_temp_reference_data_length, dus_temp_testing_time_ms, marker='o', markersize=6, linestyle='--', label='Localization Dust. Smart-B.', color="#0367A6", alpha=1)
 
-ax1.plot(dus_habitat_reference_data_length, dus_habitat_training_time_ms, marker='o', markersize=6,linestyle='--' ,label='Train. Dustminer Habitat', color="#A6290D")
-ax2.plot(dus_habitat_reference_data_length, dus_habitat_testing_time_ms, marker='o', markersize=6, linestyle='--', label='Test. Dustminer Habitat', color="#A6290D", alpha=1)
+ax1.plot(dus_habitat_reference_data_length, dus_habitat_training_time_ms, marker='o', markersize=6,linestyle='--' ,label='Training Dust Habitat', color="#A6290D")
+ax2.plot(dus_habitat_reference_data_length, dus_habitat_testing_time_ms, marker='o', markersize=6, linestyle='--', label='Localization Dust Habitat', color="#A6290D", alpha=1)
 
-ax1.plot(dus_contiki_reference_data_length, dus_contiki_training_time_ms, marker='o', markersize=6,linestyle='--' ,label='Train. Dustminer Contiki', color="#4F7302")
-ax2.plot(dus_contiki_reference_data_length, dus_contiki_testing_time_ms, marker='o', markersize=6, linestyle='--', label='Test. Dustminer Contiki', color="#4F7302", alpha=1)
+ax1.plot(dus_contiki_reference_data_length, dus_contiki_training_time_ms, marker='o', markersize=6,linestyle='--' ,label='Training Dust Contiki', color="#4F7302")
+ax2.plot(dus_contiki_reference_data_length, dus_contiki_testing_time_ms, marker='o', markersize=6, linestyle='--', label='Localization Dust Contiki', color="#4F7302", alpha=1)
 
 
 # ax1.set_xlabel('Reference Data Length')
 # ax1.set_xscale('log')
 ax1.set_ylabel('Time (ms)')
 ax1.grid(True)
-ax1.legend(loc='center left', fontsize=11, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
+ax1.legend(loc='center left', fontsize=14, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
+ax1.title.set_text('Training Time')
 
 ax2.set_ylabel('Time (ms)')
 ax2.grid(True)
-ax2.legend(loc='center left', fontsize=11, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
+ax2.legend(loc='center left', fontsize=14, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
+ax2.title.set_text('Localization Time')
 
 
-ax3.plot(vd_temp_reference_data_length, vd_temp_f1_score, linestyle='-', label='F1 VarDiag Smart-Build.', color="#0367A6", marker='o', markersize=6) #  
+ax3.plot(vd_temp_reference_data_length, vd_temp_f1_score, linestyle='-', label='F1 VarD. Smart-B.', color="#0367A6", marker='o', markersize=6) #  
 
-ax3.plot(vd_habitat_reference_data_length, vd_habitat_f1_score, linestyle='-', label='F1 VarDiag Habitat', color="#A6290D", marker='o', markersize=6) #  
+ax3.plot(vd_habitat_reference_data_length, vd_habitat_f1_score, linestyle='-', label='F1 VarD. Habitat', color="#A6290D", marker='o', markersize=6) #  
 
-ax3.plot(vd_contiki_reference_data_length, vd_contiki_f1_score, linestyle='-', label='F1 VarDiag Contiki', color="#4F7302", marker='o', markersize=6) #  
+ax3.plot(vd_contiki_reference_data_length, vd_contiki_f1_score, linestyle='-', label='F1 VarD. Contiki', color="#4F7302", marker='o', markersize=6) #  
 
-ax3.plot(dus_temp_reference_data_length, dus_temp_f1_score, linestyle='--', label='F1 Dustminer Smart-Build.', color="#0367A6", marker='o', markersize=6) #  
+ax3.plot(dus_temp_reference_data_length, dus_temp_f1_score, linestyle='--', label='F1 Dust. Smart-B.', color="#0367A6", marker='o', markersize=6) #  
 
-ax3.plot(dus_habitat_reference_data_length, dus_habitat_f1_score, linestyle='--', label='F1 Dustminer Habitat', color="#A6290D", marker='o', markersize=6) #  
+ax3.plot(dus_habitat_reference_data_length, dus_habitat_f1_score, linestyle='--', label='F1 Dust. Habitat', color="#A6290D", marker='o', markersize=6) #  
 
-ax3.plot(dus_contiki_reference_data_length, dus_contiki_f1_score, linestyle='--', label='F1 Dustminer Contiki', color="#4F7302", marker='o', markersize=6) #  
+ax3.plot(dus_contiki_reference_data_length, dus_contiki_f1_score, linestyle='--', label='F1 Dust. Contiki', color="#4F7302", marker='o', markersize=6) #  
 
 ax3.set_xlabel('Reference Data Length')
 # ax2.set_xscale('log')
 ax3.set_ylabel('F1 Score')
 ax3.set_ylim(0, 1.0)
-ax3.legend(loc='center left', fontsize=11, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
+ax3.legend(loc='center left', fontsize=14, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
+ax3.title.set_text('F1 Score')
 
 
 # Combine legends
