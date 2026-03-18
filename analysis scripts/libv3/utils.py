@@ -358,7 +358,7 @@ def plot_single_trace(df,
                     x1=end, # the x-coordinate of the right side of the rectangle
                     y1=1, # the y-coordinate of the top of the rectangle
                     fillcolor=fill_colour, # the fill color
-                    opacity=0.5, # the opacity
+                    opacity=0.1, # the opacity
                     layer="below", # draw shape below traces
                     line_width=0, # outline width
                     )
