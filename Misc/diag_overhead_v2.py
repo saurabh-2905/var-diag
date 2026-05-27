@@ -144,11 +144,13 @@ ax2.plot(dus_contiki_reference_data_length, dus_contiki_testing_time_ms, marker=
 
 # ax1.set_xlabel('Reference Data Length')
 # ax1.set_xscale('log')
+ax1.set_yscale('log')
 ax1.set_ylabel('Time (ms)')
 ax1.grid(True)
 ax1.legend(loc='center left', fontsize=14, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
 ax1.title.set_text('Training Time')
 
+ax2.set_yscale('log')
 ax2.set_ylabel('Time (ms)')
 ax2.grid(True)
 ax2.legend(loc='center left', fontsize=14, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
@@ -169,6 +171,7 @@ ax3.plot(dus_contiki_reference_data_length, dus_contiki_f1_score, linestyle='--'
 
 ax3.set_xlabel('Reference Data Length')
 # ax2.set_xscale('log')
+# ax3.set_yscale('log')
 ax3.set_ylabel('F1 Score')
 ax3.set_ylim(0, 1.0)
 ax3.legend(loc='center left', fontsize=14, bbox_to_anchor=(1.0, 0.5), fancybox=True, ncol=1)
