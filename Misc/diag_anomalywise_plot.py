@@ -31,7 +31,7 @@ data = [
 ]
 
 # Colors (you can keep your original palette)
-colours = ['#A6290D', '#4F7302']
+colours = ['#A6290D', '#2B7010']
 
 # X-axis positions
 x = np.arange(len(fault_types))
@@ -56,7 +56,7 @@ for i in range(len(models)):
 
 # Labels
 ax.set_ylabel('Recall')
-ax.set_xlabel('Anomalies')
+ax.set_xlabel('Faults')
 ax.set_xticks(x)
 ax.set_xticklabels(fault_types, rotation=0)
 ax.set_ylim(0, 1.1)
