@@ -608,20 +608,21 @@ def update_exeint(selected_config_id, selected_range, addons_flags, addons_thres
             else:
                 labels = None
                 print('Label file does not exist')
-            
-    if addons_thresholds is not None:
-        if addons_thresholds == 'Single-MinMax':
-            if os.path.exists(threshold_path[0]):
-                thresholds = read_json(threshold_path[0])
+
+    if 'thresholds' in addons_flags:
+        if addons_thresholds is not None:
+            if addons_thresholds == 'Single-MinMax':
+                if os.path.exists(threshold_path[0]):
+                    thresholds = read_json(threshold_path[0])
+                else:
+                    print('Threshold file does not exist')
+            elif addons_thresholds == 'Multi-MinMax':
+                if os.path.exists(threshmmulti_path[0]):
+                    thresholds = read_json(threshmmulti_path[0])
+                else:
+                    print('Threshold file does not exist')
             else:
-                print('Threshold file does not exist')
-        elif addons_thresholds == 'Multi-MinMax':
-            if os.path.exists(threshmmulti_path[0]):
-                thresholds = read_json(threshmmulti_path[0])
-            else:
-                print('Threshold file does not exist')
-        else:
-            print('Thresholds not found')
+                print('Thresholds not found')
 
     plot_list = plot_execution_interval_single(to_plot, 
                                                ground_truths= labels,
